@@ -1,0 +1,626 @@
+menu "FreeRTOS"
+menu "Basic Settings"
+	choice
+		prompt "Used Heap Implemenation"
+		help 
+			FreeRTOS offers several heap management schemes that range in complexity and features - the simplest of which can sometimes 
+			even meet the requirements of applications that, for safety reasons, do not permit dynamic memory allocation at all.
+
+			It is also possible to provide your own heap implementation, and even to use two heap implementations simultaneously. Using 
+			two heap implementations simultaneously permits task stacks and other RTOS objects to be placed in fast internal RAM, and 
+			application data to be placed in slower external RAM.
+
+			The RTOS kernel allocates RAM each time a task, queue, mutex, software timer, semaphore or event group is created. The 
+			standard C library malloc() and free() functions can sometimes be used for this purpose, but ...
+
+			1. they are not always available on embedded systems,
+			2. they take up valuable code space,
+			3. they are not thread safe, and
+			4. they are not deterministic (the amount of time taken to execute the function will differ from call to call)
+
+			... so more often than not an alternative memory allocation implementation is required.
+			One embedded / real time system can have very different RAM and timing requirements to another - so a single RAM allocation 
+			algorithm will only ever be appropriate for a subset of applications.
+
+			To get around this problem, FreeRTOS keeps the memory allocation API in its portable layer. The portable layer is outside 
+			of the source files that implement the core RTOS functionality, allowing an application specific implementation appropriate 
+			for the real time system being developed to be provided. When the RTOS kernel requires RAM, instead of calling malloc(), it 
+			instead calls pvPortMalloc(). When RAM is being freed, instead of calling free(), the RTOS kernel calls vPortFree().
+
+	config HEAP_1
+		bool "Heap 1"
+		help
+			This is the simplest implementation of all. It does not permit memory to be freed once it has been allocated. Despite this, 
+			heap_1.c is appropriate for a large number of embedded applications. This is because the majority of deeply embedded 
+			applications create all the tasks, queues, semaphores, etc. required when the system boots, and then use all of these 
+			objects for the lifetime of program (until the application is switched off again, or is rebooted). Nothing ever gets 
+			deleted.
+			The implementation simply subdivides a single array into smaller blocks as RAM is requested. The total size of the 
+			array (the total size of the heap) is set by configTOTAL_HEAP_SIZE - which is defined in FreeRTOSConfig.h.
+
+			The xPortGetFreeHeapSize() API function returns the total amount of heap space that remains unallocated, allowing the 
+			configTOTAL_HEAP_SIZE setting to be optimised.
+
+			The heap_1 implementation:
+
+			- Can be used if your application never deletes a task, queue, semaphore, mutex, etc. (which actually covers the majority 
+			  of applications in which FreeRTOS gets used).
+			- Is always deterministic (always takes the same amount of time to execute) and cannot result in memory fragmentation.
+			- Is very simple and allocated memory from a statically allocated array, meaning it is often suitable for use in 
+			  applications that do not permit true dynamic memory allocation.
+	config HEAP_2
+		bool "Heap 2"
+		help
+			This scheme uses a best fit algorithm and, unlike scheme 1, allows previously allocated blocks to be freed. It does not 
+			however combine adjacent free blocks into a single large block (it does not include a coalescence algorithm - see 
+			heap_4.c for an implementation that does coalescence free blocks).
+			The total amount of available heap space is set by configTOTAL_HEAP_SIZE - which is defined in FreeRTOSConfig.h.
+
+			The xPortGetFreeHeapSize() API function returns the total amount of heap space that remains unallocated (allowing the 
+			configTOTAL_HEAP_SIZE setting to be optimised), but does not provided information on how the unallocated memory 
+			is fragmented into smaller blocks.
+
+			This implementation:
+			- Can be used even when the application repeatedly deletes tasks, queues, semaphores, mutexes, etc., with the caveat 
+			  below regarding memory fragmentation.
+			- Should not be used if the memory being allocated and freed is of a random size. For example:
+			  - If an application dynamically creates and deletes tasks, and the size of the stack allocated to the tasks being 
+			    created is always the same, then heap2.c can be used in most cases. However, if the size of the stack allocated to 
+			    the tasks being created was not always the same, then the available free memory might become fragmented into many 
+			    small blocks, eventually resulting in allocation failures. heap_4.c would be a better choise in this case.
+			  - If an application dynamically creates and deletes queues, and the queue storage area is the same in each case (the 
+			    queue storage area is the queue item size multiplied by the length of the queue), then heap_2.c can be used in 
+			    most cases. However, if the queue storage area were not the same in each case, then the available free memory might 
+			    become fragmented into many small blocks, eventually resulting in allocation failures. heap_4.c would be a better 
+			    choise in this case.
+			  - The application called pvPortMalloc() and vPortFree() directly, rather than just indirectly through other FreeRTOS 
+			    API functions.
+			- Could possible result in memory fragmentation problems if your application queues, tasks, semaphores, mutexes, etc. 
+			  in an unpredictable order. This would be unlikely for nearly all applications but should be kept in mind.
+			- not deterministic - but is much more efficient that most standard C library malloc implementations.
+			heap_2.c is suitable for most small real time systems that have to dynamically create tasks.
+	config HEAP_3
+		bool "Heap 3"
+		help 
+			This implements a simple wrapper for the standard C library malloc() and free() functions that will, in most cases, be 
+			supplied with your chosen compiler. The wrapper simply makes the malloc() and free() functions thread safe.
+			This implementation:
+			- Requires the linker to setup a heap, and the compiler library to provide malloc() and free() implementations.
+			- Is not deterministic.
+			- Will probably considerably increase the RTOS kernel code size.
+			Note that the configTOTAL_HEAP_SIZE setting in FreeRTOSConfig.h has no effect when heap_3 is used.
+	config HEAP_4
+		bool "Heap 4"
+		help
+			This scheme uses a first fit algorithm and, unlike scheme 2, it does combine adjacent free memory blocks into a single 
+			large block (it does include a coalescence algorithm).
+			The total amount of available heap space is set by configTOTAL_HEAP_SIZE - which is defined in FreeRTOSConfig.h.
+
+			The xPortGetFreeHeapSize() API function returns the total amount of heap space that remains unallocated (allowing the 
+			configTOTAL_HEAP_SIZE setting to be optimised), but does not provided information on how the unallocated memory is 
+			fragmented into smaller blocks.
+
+			This implementation:
+			- Can be used even when the application repeatedly deletes tasks, queues, semaphores, mutexes, etc..
+			- Is much less likely than the heap_2 implementation to result in a heap space that is badly fragmented into multiple 
+			  small blocks - even when the memory being allocated and freed is of random size.
+			- Is not deterministic - but is much more efficient that most standard C library malloc implementations.
+			  heap_4.c is particularly useful for applications that want to use the portable layer memory allocation schemes 
+			  directly in the application code (rather than just indirectly by calling API functions that themselves call 
+			  pvPortMalloc() and vPortFree()).
+			If you need to place the heap at a specific memory address then set configAPPLICATION_ALLOCATED_HEAP to 1 in 
+			FreeRTOSConfig.h, and declare an array called ucHeap[]. For example, using IAR/MSP430 syntax, the following code will 
+			place the array from which heap memory is obtained at address 0x4000.
+
+			#pragma location=0x4000
+			uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+	config HEAP_5
+		bool "Heap 5"
+		help 
+			This scheme uses the same first fit and memory coalescence algorithms as heap_4, and allows the heap to span multiple 
+			non adjacent (non-contiguous) memory regions.
+			Heap_5 is initialised by calling vPortDefineHeapRegions(), and cannot be used until after vPortDefineHeapRegions() 
+			has executed. Creating an RTOS object (task, queue, semaphore, etc.) will implicitly call pvPortMalloc() so it is 
+			essential that, when using heap_5, vPortDefineHeapRegions() is called before the creation of any such object.
+
+			vPortDefineHeapRegions() takes a single parameter. The parameter is an array of HeapRegion_t structures. HeapRegion_t is 
+			defined in portable.h as
+				typedef struct HeapRegion
+				{
+					/* Start address of a block of memory that will be part of the heap.*/
+					uint8_t *pucStartAddress;
+
+					/* Size of the block of memory. */
+					size_t xSizeInBytes;
+				} HeapRegion_t;
+			The array is terminated using a NULL zero sized region definition, and the memory regions defined in the array must 
+			appear in address order, from low address to high address. The following source code snippets provide an example. 
+			The MSVC Win32 simulator demo also uses heap_5 so can be used as a reference.
+				/* Allocate two blocks of RAM for use by the heap.  The first is a block of 
+				0x10000 bytes starting from address 0x80000000, and the second a block of 
+				0xa0000 bytes starting from address 0x90000000.  The block starting at 
+				0x80000000 has the lower start address so appears in the array fist. */
+				const HeapRegion_t xHeapRegions[] =
+				{
+					{ ( uint8_t * ) 0x80000000UL, 0x10000 },
+					{ ( uint8_t * ) 0x90000000UL, 0xa0000 },
+					{ NULL, 0 } /* Terminates the array. */
+				};
+
+				/* Pass the array into vPortDefineHeapRegions(). */
+				vPortDefineHeapRegions( xHeapRegions );
+	endchoice	
+	config TOTAL_HEAP_SIZE
+		int "Total Heap Size"
+		default 10485760
+		depends on HEAP_1 || HEAP_2 || HEAP_4
+		help
+			HEAP Size
+
+	config INCLUDE_USER_FREERTOS_CONFIG
+		bool "Include User FreeRTOS Config"
+		default n
+		help 
+			Include FreeRTOSConfigUser.h not used normally
+	choice 
+		prompt "Select CONFIG_ASSERT Marco"
+		config ASSERT_DEFAULT
+			bool "Default CONFIG_ASSERT Macro"
+			help 
+				#define CONFIG_ASSERT(x) do{if(x) {taskDISABLE_INTERRUPTS(); for(;;);}while(0)
+		config ASSERT_USER_DEFINED
+			bool "User Defined CONFIG_ASSERT Macro"
+			select INCLUDE_USER_FREERTOS_CONFIG
+			help
+				Defined your own CONFIG_ASSERT in FreeRTOSConfigUser.h
+				#define CONFIG_ASSERT(x) ASSERT_USER(x)
+		config ASSERT_DISABLED
+			bool "Disable CONFIG_ASSERT"
+			help 
+				#define CONFIG_ASSERT(x) 
+	endchoice
+	config USE_16_BIT_TICKS
+		bool "Use 16 Bit Tick Timer(default 32 Bit)"
+		default n
+		help 
+			Time is measured in 'ticks' - which is the number of times the tick interrupt has executed since the RTOS kernel 
+			was started. The tick count is held in a variable of type TickType_t.
+			Defining configUSE_16_BIT_TICKS as 1 causes TickType_t to be defined (typedef'ed) as an unsigned 16bit type. Defining 
+			configUSE_16_BIT_TICKS as 0 causes TickType_t to be defined (typedef'ed) as an unsigned 32bit type.
+
+			Using a 16 bit type will greatly improve performance on 8 and 16 bit architectures, but limits the maximum specifiable 
+			time period to 65535 'ticks'. Therefore, assuming a tick frequency of 250Hz, the maximum time a task can delay or block 
+			when a 16bit counter is used is 262 seconds, compared to 17179869 seconds when using a 32bit counter.
+
+	comment "Warning the most architecture do not support tick rate garter then 1000Hz"
+	comment "Warning tick rate grater then 1000Hz can make the system unstable"
+	config TICK_RATE_HZ
+		int "Scheduler Tick Rate(Hz)"
+		default 1000
+		help
+			Tick Rate in Hz
+
+	config USE_TRACE_FACILITY
+		bool "Enable Trace facility"
+		default n
+		help 
+			Set to 0 if you wish to include additional structure members and functions to assist with execution visualisation 
+			and tracing.
+	config GENERATE_RUN_TIME_STATS
+		bool "Generate runtime Statistics"
+		default n
+		depends on USE_TRACE_FACILITY
+		help 
+			more information under http://www.freertos.org/rtos-run-time-stats.html
+	choice 
+		prompt "Select Time Stats Generator Function"
+		depends on GENERATE_RUN_TIME_STATS 
+		config GENERATE_RUN_TIME_STATS_DEFAULT
+			bool "Use xTaskGetTickCount() (default)"
+			help 
+				Use xTaskGetTickCount() Waring max resolution 1ms!
+		config GENERATE_RUN_TIME_STATS_USER
+			bool "User defined functions"
+			select INCLUDE_USER_FREERTOS_CONFIG
+			help
+				User must defined: portCONFIGURE_TIMER_FOR_RUN_TIME_STATS and portGET_RUN_TIME_COUNTER_VALUE
+			
+	endchoice
+	config INCLUDE_uxTaskGetStackHighWaterMark
+		bool "Get Stack High Water Mark Support"
+		default n
+		depends on USE_TRACE_FACILITY
+		depends on CHECK_FOR_STACK_OVERFLOW
+		help 
+			Get Stack High Water Mark Support. The Stack High Water Mark is the highest position of Stack pointer recognized while Task
+			Switching. 
+	config USE_ALTERNATIVE_API
+		bool "Use Alternative FreeRTOS Api"
+		default n
+		help
+			Set to 1 to include the 'alternative' queue functions in the build, or 0 to omit the 'alternative' queue functions 
+			from the build. The alternative API is described within the queue.h header file. The alternative API is deprecated 
+			and should not be used in new designs.
+
+endmenu
+menu "Task Setting"
+	config MAX_PRIORITIES
+		int "Max Priorities"
+		default 5
+		help
+			The number of priorities available to the application tasks. Any number of tasks can share the same priority. 
+			Co-routines are prioritised separately - see CONFIG_MAX_CO_ROUTINE_PRIORITIES.
+			Each available priority consumes RAM within the RTOS kernel so this value should not be set any higher 
+			than actually required by your application.
+	config MINIMAL_STACK_SIZE
+		int "minimal Stack Size"
+		default 128
+		help
+			The size of the stack used by the idle task. Generally this should not be reduced from the value set in the 
+			FreeRTOSConfig.h file provided with the demo application for the port you are using.
+			Like the stack size parameter to the xTaskCreate() function, the stack size is specified in words, not bytes. If each 
+			item placed on the stack is 32-bits, then a stack size of 100 means 400 bytes (each 32-bit stack item consuming 4 bytes).
+	config MAX_TASK_NAME_LEN
+		int "Maximal Task Name Length"
+		default 16
+		help
+			The maximum permissible length of the descriptive name given to a task when the task is created. The length is 
+			specified in the number of characters including the NULL termination byte.
+	config NUM_THREAD_LOCAL_STORAGE_POINTERS
+		int "Number of Pointers can be stored in TLB"
+		default 0
+		help 
+			Number of Pointers can be stored in TLB 
+			Each task contains an array of pointers that is dimensioned by the
+			CONFIG_NUM_THREAD_LOCAL_STORAGE_POINTERS setting in FreeRTOSConfig.h.  The kernel does not use the pointers itself, 
+			so the application writer can use the pointers for any purpose they wish.
+
+			more Information under: http://www.freertos.org/thread-local-storage-pointers.html
+	config USE_STATS_FORMATTING_FUNCTIONS
+		bool "Use Statistic Formatting Functions"
+		default n
+		help
+			Set configUSE_TRACE_FACILITY and configUSE_STATS_FORMATTING_FUNCTIONS to y to include the vTaskList() and 
+			vTaskGetRunTimeStats() functions in the build. Setting either to 0 will omit vTaskList() and vTaskGetRunTimeStates() 
+			from the build.
+	config USE_TICKLESS_IDLE
+		bool "Use Tickless idle"
+		default n
+		select INCLUDE_vTaskSuspend
+		help 
+			Set configUSE_TICKLESS_IDLE to y to use the low power tickless mode, or 0 to keep the tick interrupt running at all times.
+
+			more imformation under http://www.freertos.org/low-power-tickless-rtos.html
+	comment "EXPECTED_IDLE_TIME_BEFORE_SLEEP must not be less than 2"
+		depends on EXPECTED_IDLE_TIME_BEFORE_SLEEP = 1 || EXPECTED_IDLE_TIME_BEFORE_SLEEP = 0
+	config EXPECTED_IDLE_TIME_BEFORE_SLEEP
+		int "Expected idle time before sleep"
+		default 2
+		depends on USE_TICKLESS_IDLE
+		help
+			Minimal Time before Processor go to sleep
+	config INCLUDE_vTaskSuspend
+		bool "Enable task suspend capability" 
+		default y
+		help
+			Enable Task can be supended
+	config INCLUDE_xTaskResumeFromISR
+		bool "Add Task Resume From ISR Support"
+		depends on INCLUDE_vTaskSuspend
+		help 
+			Add Task Resume From ISR Support
+	config USE_PREEMPTION
+		bool "Use preemption"
+		default y
+		help 
+			Set to 1 to use the preemptive RTOS scheduler, or 0 to use the cooperative RTOS scheduler.
+	config USE_TIME_SLICING
+		bool "Use Time Slicing"
+		default y
+		depends on USE_PREEMPTION
+		help
+			By default (if configUSE_TIME_SLICING is not defined, or if configUSE_TIME_SLICING is defined as 1) FreeRTOS uses 
+			prioritised preemptive scheduling with time slicing. That means the RTOS scheduler will always run the highest priority 
+			task that is in the Ready state, and will switch between tasks of equal priority on every RTOS tick interrupt. 
+			If configUSE_TIME_SLICING is set to 0 then the RTOS scheduler will still run the highest priority task that is in 
+			the Ready state, but will not switch between tasks of equal priority just because a tick interrupt has occurred.
+	config IDLE_SHOULD_YIELD
+		bool "Idle Should Yield"
+		depends on USE_PREEMPTION 
+		default y
+		help
+			This parameter controls the behaviour of tasks at the idle priority. It only has an effect if:
+			1. The preemptive scheduler is being used.
+			2. The users application creates tasks that run at the idle priority.
+			Tasks that share the same priority will time slice. Assuming none of the tasks get preempted, it might be assumed that 
+			each task of at a given priority will be allocated an equal amount of processing time - and if the shared priority is 
+			above the idle priority then this is indeed the case.
+			When tasks share the idle priority the behaviour can be slightly different. When configIDLE_SHOULD_YIELD is set to 1 the 
+			idle task will yield immediately should any other task at the idle priority be ready to run. This ensures the minimum 
+			amount of time is spent in the idle task when application tasks are available for scheduling. This behaviour can however 
+			have undesirable effects (depending on the needs of your application) as depicted below:
+			 T0   T1   T2         T3    T4     T5         T6
+			------+-----+----+----+-----+------+----+-----+--------
+			| B   | C   | I  | A  | B   | C    | I  | A   | B     |
+			------+-----+----+----+-----+------+----+-----+--------
+			This diagram shows the execution pattern of four tasks at the idle priority. Tasks A, B and C are application tasks. 
+			Task I is the idle task. A context switch occurs with regular period at times T0, T1, ..., T6. When the idle task yields 
+			task A starts to execute - but the idle task has already taken up some of the current time slice. This results in task I 
+			and task A effectively sharing a time slice. The application tasks B and C therefore get more processing time than the 
+			application task A.
+
+			This situation can be avoided by:
+			- If appropriate, using an idle hook in place of separate tasks at the idle priority.
+			- Creating all application tasks at a priority greater than the idle priority.
+			- Setting configIDLE_SHOULD_YIELD to 0.
+			Setting configIDLE_SHOULD_YIELD prevents the idle task from yielding processing time until the end of its time slice. This 
+			ensure all tasks at the idle priority are allocated an equal amount of processing time - but at the cost of a greater 
+			proportion of the total processing time being allocated to the idle task.
+	config USE_APPLICATION_TASK_TAG	
+		bool "Use Application Task Tags"
+		default n
+		help
+			Set to y if you want use Task Tags. Used by Trace Hook Macros
+	config USE_NEWLIB_REENTRANT
+		bool "Use Newlib reentrat"
+		help
+			If configUSE_NEWLIB_REENTRANT is set to 1 then a newlib reent structure will be allocated for each created task.
+			Note Newlib support has been included by popular demand, but is not used by the FreeRTOS maintainers themselves. 
+			FreeRTOS is not responsible for resulting newlib operation. User must be familiar with newlib and must provide 
+			system-wide implementations of the necessary stubs. Be warned that (at the time of writing) the current newlib 
+			design implements a system-wide malloc() that must be provided with locks.
+	config USE_TASK_NOTIFICATIONS
+		bool "Use Task Notifications functions"
+		default n
+		help
+			Setting configUSE_TASK_NOTIFICATIONS to 1 (or leaving configUSE_TASK_NOTIFICATIONS undefined) will include direct to 
+			task notification functionality and its associated API in the build.
+			Setting configUSE_TASK_NOTIFICATIONS to 0 will exclude direct to task notification functionality and its associated API 
+			from the build.
+
+			Each task consumes 8 additional bytes of RAM when direct to task notifications are included in the build.
+	config USE_PORT_OPTIMISED_TASK_SELECTION
+		bool "Use Optimised Task Selection"
+		default n
+		depends on PORT_HAS_OPTIMISED_TASK_SELECTION
+		help 
+			Some FreeRTOS ports have two methods of selecting the next task to execute - a generic method, and a method that is 
+			specific to that port.
+			The Generic method:
+
+			Is used when CONFIG_USE_PORT_OPTIMISED_TASK_SELECTION is set to 0, or when a port specific method is not implemented.
+			Can be used with all FreeRTOS ports.
+			Is completely written in C, making it less efficient than a port specific method.
+			Does not impose a limit on the maximum number of available priorities.
+			A port specific method:
+
+			Is not available for all ports.
+			Is used when CONFIG_USE_PORT_OPTIMISED_TASK_SELECTION is set to 1.
+			Relies on one or more architecture specific assembly instructions (typically a Count Leading Zeros [CLZ] of 
+			equivalent instruction) so can only be used with the architecture for which it was specifically written.
+			Is more efficient than the generic method.
+			Typically imposes a limit of 32 on the maximum number of available priorities.
+	config USE_16_BIT_TICKS
+		bool "Use 16 Bit Ticks"
+		default n
+		help 
+			Time is measured in 'ticks' - which is the number of times the tick interrupt has executed since the RTOS 
+			kernel was started. The tick count is held in a variable of type TickType_t.
+			Defining configUSE_16_BIT_TICKS as 1 causes TickType_t to be defined (typedef'ed) as an unsigned 16bit type. 
+			Defining configUSE_16_BIT_TICKS as 0 causes TickType_t to be defined (typedef'ed) as an unsigned 32bit type.
+
+			Using a 16 bit type will greatly improve performance on 8 and 16 bit architectures, but limits the maximum specifiable 
+			time period to 65535 'ticks'. Therefore, assuming a tick frequency of 250Hz, the maximum time a task can delay or 
+			block when a 16bit counter is used is 262 seconds, compared to 17179869 seconds when using a 32bit counter.
+
+
+	config CHECK_STACK_OVERFLOW
+		default n
+		bool "Check for Stack Overflow"
+
+	comment "Warning Stack Overflow only 1 or 2 supported"
+		depends on CHECK_STACK_OVERFLOW = y && CHECK_FOR_STACK_OVERFLOW != 1 && CHECK_FOR_STACK_OVERFLOW != 2
+	comment "Warning Stack Overflow disabled with 0!"
+		depends on CHECK_STACK_OVERFLOW = y && CHECK_FOR_STACK_OVERFLOW = 0
+
+	config CHECK_FOR_STACK_OVERFLOW
+		depends on CHECK_STACK_OVERFLOW
+		default 1
+		int "Select Stack Overflow check"
+		help 
+			It is likely that the stack will reach its greatest (deepest) value after the RTOS kernel has swapped the task out 
+			of the Running state because this is when the stack will contain the task context. At this point the RTOS kernel can 
+			check that the processor stack pointer remains within the valid stack space. The stack overflow hook function is 
+			called if the stack pointer contain a value that is outside of the valid stack range.
+			This method is quick but not guaranteed to catch all stack overflows. Set configCHECK_FOR_STACK_OVERFLOW to 1 to use 
+			this method only.
+			When a task is first created its stack is filled with a known value. When swapping a task out of the Running state 
+			the RTOS kernel can check the last 16 bytes within the valid stack range to ensure that these known values have not 
+			been overwritten by the task or interrupt activity. The stack overflow hook function is called should any of these 16 bytes 
+			not remain at their initial value.
+			This method is less efficient than method one, but still fairly fast. It is very likely to catch stack overflows but is 
+			still not guaranteed to catch all overflows.
+
+			To use this method in combination with method 1 set configCHECK_FOR_STACK_OVERFLOW to 2. It is not possible to use only 
+			this method. 
+	config USE_TICK_HOOK
+		bool "Use Tick Hook"
+		default n
+		help
+			Set to 1 if you wish to use an tick hook, or 0 to omit an tick hook.
+
+			The tick interrupt can optionally call an application defined hook (or callback) function - the tick hook. 
+			The tick hook provides a convenient place to implement timer functionality.
+			The tick hook will only get called if configUSE_TICK_HOOK is set to 1 within FreeRTOSConfig.h. When this is set the 
+			application must provide the hook function with the following prototype:
+
+				void vApplicationTickHook( void );
+			vApplicationTickHook() executes from within an ISR so must be very short, not use much stack, and not call any API 
+			functions that don't end in "FromISR" or "FROM_ISR".
+			See the demo application file crhook.c for an example of how to use a tick hook.
+	comment "Function Support"
+	config INCLUDE_vTaskDelete
+		bool "Add Task Deletion Support"
+		default n
+		depends on HEAP_2 || HEAP_3 || HEAP_4 || HEAP_5
+		help
+			Add Task Deletion Support 
+	config INCLUDE_xTaskGetIdleTaskHandle
+		bool "Add Get Idel Task Handle Support"
+		default n
+		help 
+			Add get Idel Task Handle Support
+	config INCLUDE_vTaskDelay
+		bool "Add Task Delay Support"
+		default y
+	config INCLUDE_vTaskDelayUntil
+		bool "Add Task Delay Until Support"
+		default y
+		help
+			Add Task Delay Until Support
+	config INCLUDE_eTaskGetState
+		bool "Add Get Task State Support"
+		default n 
+		help 
+			Add Get Task State support
+	config INCLUDE_uxTaskPriorityGet
+		bool "Add Get Task Priority Support"
+		default n
+		help 
+			Add Get Task Priority Support
+
+	config INCLUDE_vTaskPrioritySet
+		bool "Add Set task Priority Support"
+		default n
+		help 
+			Add Set Task Prioity Support
+	config INCLUDE_pcTaskGetTaskName
+		bool "Add Get Task Name Support"
+		help
+			Add Get Task Name Support
+	config INCLUDE_xTaskGetSchedulerState
+		bool "Add Get Scheduler State Support"
+		default n
+		help 
+			Add get Scheduler State Support.
+endmenu
+menu "Queue Settings" 
+	config USE_QUEUE_SETS
+		bool "Used Queue Sets"
+		default n
+		help
+			Set to 1 to include queue set functionality (the ability to block, or pend, on multiple queues and semaphores), or 0 to 
+			omit queue set functionality.
+
+			Queue sets are a FreeRTOS feature that enables an RTOS task to block (pend) when receiving from multiple queues and/or 
+			semaphores at the same time. Queues and semaphores are grouped into sets, then, instead of blocking on an individual 
+			queue or semaphore, a task instead blocks on the set.
+			Note: While it is sometimes necessary to block (pend) on more than one queue if you are integrating FreeRTOS with 
+			third party of legacy code, designs that are free from such restrictions can normally achieve the same functionality 
+			in a more efficient way using the alternative design pattern that is documented at the bottom of this page.
+
+			More Information under: http://www.freertos.org/Pend-on-multiple-rtos-objects.html
+	config QUEUE_REGISTRY_SIZE
+		int "Queue Registry Size"
+		default 0
+		help
+			The queue registry has two purposes, both of which are associated with RTOS kernel aware debugging:
+			1. It allows a textual name to be associated with a queue for easy queue identification within a debugging GUI.
+			2. It contains the information required by a debugger to locate each registered queue and semaphore.
+			The queue registry has no purpose unless you are using a RTOS kernel aware debugger.
+			configQUEUE_REGISTRY_SIZE defines the maximum number of queues and semaphores that can be registered. Only those queues 
+			and semaphores that you want to view using a RTOS kernel aware debugger need be registered. See the API reference 
+			documentation for vQueueAddToRegistry() and vQueueUnregisterQueue() for more information.
+	config USE_MUTEXES
+		bool "Use Mutexes"
+		default n
+		help
+			Set to 1 to include mutex functionality in the build, or 0 to omit mutex functionality from the build. Readers 
+			should familiarise themselves with the differences between mutexes and binary semaphores in relation to the FreeRTOS 
+			functionality.
+	config INCLUDE_xSemaphoreGetMutexHolder
+		bool "Add get Mutex Holder"
+		default n
+		depends on USE_MUTEXES
+		help 
+			Add get Mutex Holler. This Function can be used to find out the blocking Task ID.
+	config USE_RECURSIVE_MUTEXES
+		bool "Used Recursive Mutexes"
+		default n
+		depends on USE_MUTEXES
+		help 
+			Set to 1 to include recursive mutex functionality in the build, or 0 to omit recursive mutex functionality from the 
+			build.
+	config USE_COUNTING_SEMAPHORES
+		bool "Used Counting Semaphores"
+		default n
+		help 
+			Set to 1 to include counting semaphore functionality in the build, or 0 to omit counting semaphore functionality from the 
+			build.
+endmenu
+menu "Event Group Setting"
+	depends on USE_TIMERS
+	depends on INCLUDE_xTimerPendFunctionCall
+	config INCLUDE_xEventGroupSetBitFromISR
+		bool "Include xEventGroupSetBitFromISR"
+		default n
+		depends on USE_TIMERS
+		depends on INCLUDE_xTimerPendFunctionCall
+		help 
+			Include xEventGroupSetBitFromISR Function
+endmenu
+menuconfig USE_TIMERS
+	bool "Timer Settings"
+	default n
+	select INCLUDE_xTaskGetSchedulerState
+	config TIMER_TASK_STACK_DEPTH
+		depends on USE_TIMERS
+		int "Timer Task Stack Depth(in Variable Count not in Bytes!)"
+		default 50
+		help
+			Timer Task Stack Depth. All Callbacks used this Stack! The Stack depth is depended on timer usage!
+
+			The Stack Depth is in Variable Count(16 Bit or 32 Bit) not in Bytes!
+
+			More Information under: http://www.freertos.org/RTOS-software-timer.html
+	config TIMER_TASK_PRIORITY
+		depends on USE_TIMERS
+		int "Timer Task Priority"
+		default 1
+		help 
+			Time Task Priority
+			More Information under: http://www.freertos.org/RTOS-software-timer.html
+	config TIMER_QUEUE_LENGTH
+		depends on USE_TIMERS
+		int "Timer Queue Length"
+		default 10
+		help
+			Sets the length of the software timer command queue.
+			More Information under: http://www.freertos.org/RTOS-software-timer.html
+	config INCLUDE_xTimerPendFunctionCall
+		depends on USE_TIMERS
+		bool "Add Timer Pend Function Call Support"
+		default n
+		help
+			Add Timer Pend Function Call Support
+	config INCLUDE_xTimerGetTimerDaemonTaskHandle
+		depends on USE_TIMERS
+		bool "Add Get Timer Daemon Task Handle"
+		default n
+		help
+			Add Get Timer Daemon Task Handle
+			
+menuconfig USE_CO_ROUTINES
+	bool "Use Co Routines"
+	default n
+	help
+		Set to 1 to include co-routine functionality in the build, or 0 to omit co-routine functionality from the build. To 
+		include co-routines croutine.c must be included in the project.
+	config MAX_CO_ROUTINE_PRIORITIES
+		int "Max Co Routine Priorities"
+		depends on USE_CO_ROUTINES
+		default 1
+		help
+			The number of priorities available to the application co-routines. Any number of co-routines can share the 
+			same priority. Tasks are prioritised separately - see CONFIG_MAX_PRIORITIES.
+endmenu
