@@ -286,6 +286,7 @@ menu "Task Setting"
 	config USE_TICKLESS_IDLE
 		bool "Use Tickless idle"
 		default n
+		depends on ARCH_HAS_TICKLESS_SUPPORT
 		select INCLUDE_vTaskSuspend
 		help 
 			Set configUSE_TICKLESS_IDLE to y to use the low power tickless mode, or 0 to keep the tick interrupt running at all times.
@@ -382,7 +383,7 @@ menu "Task Setting"
 	config USE_PORT_OPTIMISED_TASK_SELECTION
 		bool "Use Optimised Task Selection"
 		default n
-		depends on PORT_HAS_OPTIMISED_TASK_SELECTION
+		depends on ARCH_HAS_OPTIMISED_TASK_SELECTION
 		help 
 			Some FreeRTOS ports have two methods of selecting the next task to execute - a generic method, and a method that is 
 			specific to that port.
