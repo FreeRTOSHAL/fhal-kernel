@@ -4,7 +4,18 @@
 # include <FreeRTOSConfigUser.h>
 #endif
 #ifdef CONFIG_ASSERT_DEFAULT
-# define CONFIG_ASSERT(x) do{if(!(x)) {taskDISABLE_INTERRUPTS(); for(;;);}}while(0)
+/* 
+ * __builtin_expect GCC Optimization 
+ * 
+ * Add Branch prediction information assert should always not x
+ */
+# define CONFIG_ASSERT(x) \
+	do{ \
+		if(__builtin_expect(!(x), 0)) { \
+			taskDISABLE_INTERRUPTS(); \
+			for(;;); \
+		} \
+	}while(0)
 #endif
 #ifdef CONFIG_ASSERT_USER_DEFINED
 # define CONFIG_ASSERT(x) ASSERT_USER(x)

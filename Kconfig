@@ -152,10 +152,27 @@ menu "Basic Settings"
 	endchoice	
 	config TOTAL_HEAP_SIZE
 		int "Total Heap Size"
-		default 10485760
+		default 1536
 		depends on HEAP_1 || HEAP_2 || HEAP_4
 		help
 			HEAP Size
+	config USE_MALLOC_FAILED_HOOK
+		bool "Use Malloc Failed Hook"
+		default y
+		help 
+			The kernel uses a call to pvPortMalloc() to allocate memory from the heap each time a task, queue or semaphore is created.
+			The official FreeRTOS download includes four sample memory allocation schemes for this purpose. The schemes are implemented 
+			in the heap_1.c, heap_2.c, heap_3.c, heap_4.c and heap_5.c source files respectively. configUSE_MALLOC_FAILED_HOOK is only 
+			relevant when one of these three sample schemes is being used.
+			The malloc() failed hook function is a hook (or callback) function that, if defined and configured, will be called if 
+			pvPortMalloc() ever returns NULL. NULL will be returned only if there is insufficient FreeRTOS heap memory remaining for 
+			the requested allocation to succeed.
+
+			If configUSE_MALLOC_FAILED_HOOK is set to 1 then the application must define a malloc() failed hook function. If 
+			configUSE_MALLOC_FAILED_HOOK is set to 0 then the malloc() failed hook function will not be called, even if one is 
+			defined. Malloc() failed hook functions must have the name and prototype shown below.
+
+			void vApplicationMallocFailedHook( void );
 
 	config INCLUDE_USER_FREERTOS_CONFIG
 		bool "Include User FreeRTOS Config"
@@ -230,10 +247,19 @@ menu "Basic Settings"
 		bool "Get Stack High Water Mark Support"
 		default n
 		depends on USE_TRACE_FACILITY
-		depends on CHECK_FOR_STACK_OVERFLOW
+		depends on CHECK_STACK_OVERFLOW
 		help 
 			Get Stack High Water Mark Support. The Stack High Water Mark is the highest position of Stack pointer recognized while Task
 			Switching. 
+	config USE_LIST_DATA_INTEGRITY_CHECK_BYTES
+		bool "Add List Integrity Check Bytes to Lists"
+		default n
+		help
+			Macros that can be used to place known values within the list structures,
+			then check that the known values do not get corrupted during the execution of
+			the application.   These may catch the list data structures being overwritten in
+			memory.  They will not catch data errors caused by incorrect Configuration or
+			use of FreeRTOS.
 	config USE_ALTERNATIVE_API
 		bool "Use Alternative FreeRTOS Api"
 		default n
@@ -300,6 +326,47 @@ menu "Task Setting"
 		depends on USE_TICKLESS_IDLE
 		help
 			Minimal Time before Processor go to sleep
+	config USE_IDLE_HOOK
+		bool "Use Idle Hook"
+		default n
+		help
+			Set to 1 if you wish to use an idle hook, or 0 to omit an idle hook.
+
+			The Idle Task
+
+			The idle task is created automatically when the RTOS scheduler is started to ensure there is always at least one 
+			task that is able to run. It is created at the lowest possible priority to ensure it does not use any CPU time if 
+			there are higher priority application tasks in the ready state.
+			The idle task is responsible for freeing memory allocated by the RTOS to tasks that have since been deleted. It is 
+			therefore important in applications that make use of the vTaskDelete() function to ensure the idle task is not starved 
+			of processing time. The idle task has no other active functions so can legitimately be starved of microcontroller time 
+			under all other conditions.
+
+			It is possible for application tasks to share the idle task priority (tskIDLE_PRIORITY). See the CONFIG_IDLE_SHOULD_YIELD 
+			configuration parameter for information on how this behaviour can be configured.
+
+			The Idle Task Hook
+
+			An idle task hook is a function that is called during each cycle of the idle task. If you want application functionality 
+			to run at the idle priority then there are two options:
+			Implement the functionality in an idle task hook.
+			There must always be at least one task that is ready to run. It is therefore imperative that the hook function does 
+			not call any API functions that might cause the idle task to block (vTaskDelay(), or a queue or semaphore function with 
+			a block time, for example). It is ok for co-routines to block within the hook function.
+
+			Create an idle priority task to implement the functionality.
+			This is a more flexible solution but has a higher RAM usage overhead.
+
+			See the Embedded software application design section for more information on using an idle hook.
+			To create an idle hook:
+
+			- Set CONFIG_USE_IDLE_HOOK to 1 in FreeRTOSConfig.h.
+			  Define a function that has the following name and prototype:
+			  
+			    void vApplicationIdleHook( void );
+
+			- It is common to use the idle hook function to place the microcontroller CPU into a power saving mode.
+
 	config INCLUDE_vTaskSuspend
 		bool "Enable task suspend capability" 
 		default y

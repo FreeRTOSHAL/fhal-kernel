@@ -71,6 +71,7 @@
 #include <stdlib.h>
 #include "FreeRTOS.h"
 #include "list.h"
+#include <task.h>
 
 /*-----------------------------------------------------------
  * PUBLIC LIST API documented in list.h
