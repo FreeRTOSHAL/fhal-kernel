@@ -81,6 +81,7 @@ menu "Basic Settings"
 			heap_2.c is suitable for most small real time systems that have to dynamically create tasks.
 	config HEAP_3
 		bool "Heap 3"
+		depends on NEWLIB_MALLOC
 		help 
 			This implements a simple wrapper for the standard C library malloc() and free() functions that will, in most cases, be 
 			supplied with your chosen compiler. The wrapper simply makes the malloc() and free() functions thread safe.
@@ -571,6 +572,11 @@ menu "Task Setting"
 		default n
 		help 
 			Add get Scheduler State Support.
+	config INCLUDE_xTaskGetCurrentTaskHandle
+		bool "Add Get Current Task Handle Support"
+		default n
+		help
+			Add Get Current Task Handle Support
 endmenu
 menu "Queue Settings" 
 	config USE_QUEUE_SETS
