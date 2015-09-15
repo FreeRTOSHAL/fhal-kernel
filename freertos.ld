@@ -10,6 +10,6 @@ SECTIONS {
 	}
 	.bss.freertos : 
 	{
-		*(bss*)
+		*(.bss*)
 	}
 }
