@@ -17,6 +17,14 @@
 		} \
 	}while(0)
 #endif
+#ifdef CHECK_STACK_OVERFLOW
+# ifdef CHECK_FOR_STACK_OVERFLOW_1
+#  define CHECK_FOR_STACK_OVERFLOW 1
+# endif
+# ifdef CHECK_FOR_STACK_OVERFLOW_2
+#  define CHECK_FOR_STACK_OVERFLOW 2
+# endif
+#endif
 #ifdef CONFIG_ASSERT_USER_DEFINED
 # define CONFIG_ASSERT(x) ASSERT_USER(x)
 #endif
