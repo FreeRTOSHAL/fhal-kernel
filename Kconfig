@@ -305,6 +305,7 @@ menu "Task Setting"
 			more Information under: http://www.freertos.org/thread-local-storage-pointers.html
 	config USE_STATS_FORMATTING_FUNCTIONS
 		bool "Use Statistic Formatting Functions"
+		depends on USE_TRACE_FACILITY
 		default n
 		help
 			Set configUSE_TRACE_FACILITY and configUSE_STATS_FORMATTING_FUNCTIONS to y to include the vTaskList() and 
