@@ -1,5 +1,5 @@
 /*
-    FreeRTOS V8.2.2 - Copyright (C) 2015 Real Time Engineers Ltd.
+    FreeRTOS V8.2.3 - Copyright (C) 2015 Real Time Engineers Ltd.
     All rights reserved
 
     VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
@@ -8,7 +8,7 @@
 
     FreeRTOS is free software; you can redistribute it and/or modify it under
     the terms of the GNU General Public License (version 2) as published by the
-    Free Software Foundation >>!AND MODIFIED BY!<< the FreeRTOS exception.
+    Free Software Foundation >>>> AND MODIFIED BY <<<< the FreeRTOS exception.
 
     ***************************************************************************
     >>!   NOTE: The modification to the GPL is included to allow you to     !<<
@@ -74,10 +74,10 @@
 only for ports that are using the MPU. */
 #ifdef portUSING_MPU_WRAPPERS
 
-	/* MPU_WRAPPERS_INCLUDED_FROM_API_FILE will be defined when this file is
+	/* MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE will be defined when this file is
 	included from queue.c or task.c to prevent it from having an effect within
 	those files. */
-	#ifndef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+	#ifndef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
 
 		#define xTaskGenericCreate				MPU_xTaskGenericCreate
 		#define vTaskAllocateMPURegions			MPU_vTaskAllocateMPURegions
@@ -156,13 +156,13 @@ only for ports that are using the MPU. */
 		/* Remove the privileged function macro. */
 		#define PRIVILEGED_FUNCTION
 
-	#else /* MPU_WRAPPERS_INCLUDED_FROM_API_FILE */
+	#else /* MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE */
 
 		/* Ensure API functions go in the privileged execution section. */
 		#define PRIVILEGED_FUNCTION __attribute__((section("privileged_functions")))
 		#define PRIVILEGED_DATA __attribute__((section("privileged_data")))
 
-	#endif /* MPU_WRAPPERS_INCLUDED_FROM_API_FILE */
+	#endif /* MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE */
 
 #else /* portUSING_MPU_WRAPPERS */
 

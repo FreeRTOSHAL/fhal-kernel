@@ -1,5 +1,5 @@
 /*
-    FreeRTOS V8.2.2 - Copyright (C) 2015 Real Time Engineers Ltd.
+    FreeRTOS V8.2.3 - Copyright (C) 2015 Real Time Engineers Ltd.
     All rights reserved
 
     VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
@@ -8,7 +8,7 @@
 
     FreeRTOS is free software; you can redistribute it and/or modify it under
     the terms of the GNU General Public License (version 2) as published by the
-    Free Software Foundation >>!AND MODIFIED BY!<< the FreeRTOS exception.
+    Free Software Foundation >>>> AND MODIFIED BY <<<< the FreeRTOS exception.
 
     ***************************************************************************
     >>!   NOTE: The modification to the GPL is included to allow you to     !<<
@@ -343,7 +343,7 @@ BaseType_t xTimerIsTimerActive( TimerHandle_t xTimer ) PRIVILEGED_FUNCTION;
  * TaskHandle_t xTimerGetTimerDaemonTaskHandle( void );
  *
  * xTimerGetTimerDaemonTaskHandle() is only available if
- * INCLUDE_xTimerGetTimerDaemonTaskHandle is set to 1 in FreeRTOSConfig.h.
+ * CONFIG_INCLUDE_xTimerGetTimerDaemonTaskHandle is set to 1 in FreeRTOSConfig.h.
  *
  * Simply returns the handle of the timer service/daemon task.  It it not valid
  * to call xTimerGetTimerDaemonTaskHandle() before the scheduler has been started.
@@ -358,7 +358,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * through a queue called the timer command queue.  The timer command queue is
  * private to the kernel itself and is not directly accessible to application
  * code.  The length of the timer command queue is set by the
- * CONFIG_TIMER_QUEUE_LENGTH configuration constant.
+ * CONFIG_TIMER_QUEUE_LENGTH CONFIG_uration constant.
  *
  * xTimerStart() starts a timer that was previously created using the
  * xTimerCreate() API function.  If the timer had already been started and was
@@ -375,7 +375,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * started, and the timers expiry time will be relative to when the scheduler is
  * started, not relative to when xTimerStart() was called.
  *
- * The CONFIG_USE_TIMERS configuration constant must be set to 1 for xTimerStart()
+ * The CONFIG_USE_TIMERS CONFIG_uration constant must be set to 1 for xTimerStart()
  * to be available.
  *
  * @param xTimer The handle of the timer being started/restarted.
@@ -410,7 +410,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * through a queue called the timer command queue.  The timer command queue is
  * private to the kernel itself and is not directly accessible to application
  * code.  The length of the timer command queue is set by the
- * CONFIG_TIMER_QUEUE_LENGTH configuration constant.
+ * CONFIG_TIMER_QUEUE_LENGTH CONFIG_uration constant.
  *
  * xTimerStop() stops a timer that was previously started using either of the
  * The xTimerStart(), xTimerReset(), xTimerStartFromISR(), xTimerResetFromISR(),
@@ -418,7 +418,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  *
  * Stopping a timer ensures the timer is not in the active state.
  *
- * The CONFIG_USE_TIMERS configuration constant must be set to 1 for xTimerStop()
+ * The CONFIG_USE_TIMERS CONFIG_uration constant must be set to 1 for xTimerStop()
  * to be available.
  *
  * @param xTimer The handle of the timer being stopped.
@@ -454,7 +454,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * through a queue called the timer command queue.  The timer command queue is
  * private to the kernel itself and is not directly accessible to application
  * code.  The length of the timer command queue is set by the
- * CONFIG_TIMER_QUEUE_LENGTH configuration constant.
+ * CONFIG_TIMER_QUEUE_LENGTH CONFIG_uration constant.
  *
  * xTimerChangePeriod() changes the period of a timer that was previously
  * created using the xTimerCreate() API function.
@@ -462,7 +462,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * xTimerChangePeriod() can be called to change the period of an active or
  * dormant state timer.
  *
- * The CONFIG_USE_TIMERS configuration constant must be set to 1 for
+ * The CONFIG_USE_TIMERS CONFIG_uration constant must be set to 1 for
  * xTimerChangePeriod() to be available.
  *
  * @param xTimer The handle of the timer that is having its period changed.
@@ -487,7 +487,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * command queue.  When the command is actually processed will depend on the
  * priority of the timer service/daemon task relative to other tasks in the
  * system.  The timer service/daemon task priority is set by the
- * CONFIG_TIMER_TASK_PRIORITY configuration constant.
+ * CONFIG_TIMER_TASK_PRIORITY CONFIG_uration constant.
  *
  * Example usage:
  * @verbatim
@@ -532,12 +532,12 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * through a queue called the timer command queue.  The timer command queue is
  * private to the kernel itself and is not directly accessible to application
  * code.  The length of the timer command queue is set by the
- * CONFIG_TIMER_QUEUE_LENGTH configuration constant.
+ * CONFIG_TIMER_QUEUE_LENGTH CONFIG_uration constant.
  *
  * xTimerDelete() deletes a timer that was previously created using the
  * xTimerCreate() API function.
  *
- * The CONFIG_USE_TIMERS configuration constant must be set to 1 for
+ * The CONFIG_USE_TIMERS CONFIG_uration constant must be set to 1 for
  * xTimerDelete() to be available.
  *
  * @param xTimer The handle of the timer being deleted.
@@ -570,7 +570,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * through a queue called the timer command queue.  The timer command queue is
  * private to the kernel itself and is not directly accessible to application
  * code.  The length of the timer command queue is set by the
- * CONFIG_TIMER_QUEUE_LENGTH configuration constant.
+ * CONFIG_TIMER_QUEUE_LENGTH CONFIG_uration constant.
  *
  * xTimerReset() re-starts a timer that was previously created using the
  * xTimerCreate() API function.  If the timer had already been started and was
@@ -589,7 +589,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * started, and the timers expiry time will be relative to when the scheduler is
  * started, not relative to when xTimerReset() was called.
  *
- * The CONFIG_USE_TIMERS configuration constant must be set to 1 for xTimerReset()
+ * The CONFIG_USE_TIMERS CONFIG_uration constant must be set to 1 for xTimerReset()
  * to be available.
  *
  * @param xTimer The handle of the timer being reset/started/restarted.
@@ -798,7 +798,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * successfully sent to the timer command queue.  When the command is actually
  * processed will depend on the priority of the timer service/daemon task
  * relative to other tasks in the system.  The timer service/daemon task
- * priority is set by the CONFIG_TIMER_TASK_PRIORITY configuration constant.
+ * priority is set by the CONFIG_TIMER_TASK_PRIORITY CONFIG_uration constant.
  *
  * Example usage:
  * @verbatim
@@ -871,7 +871,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * command was successfully sent to the timer command queue.  When the command
  * is actually processed will depend on the priority of the timer service/daemon
  * task relative to other tasks in the system.  The timer service/daemon task
- * priority is set by the CONFIG_TIMER_TASK_PRIORITY configuration constant.
+ * priority is set by the CONFIG_TIMER_TASK_PRIORITY CONFIG_uration constant.
  *
  * Example usage:
  * @verbatim
@@ -936,7 +936,7 @@ TaskHandle_t xTimerGetTimerDaemonTaskHandle( void ) PRIVILEGED_FUNCTION;
  * processed will depend on the priority of the timer service/daemon task
  * relative to other tasks in the system, although the timers expiry time is
  * relative to when xTimerResetFromISR() is actually called.  The timer service/daemon
- * task priority is set by the CONFIG_TIMER_TASK_PRIORITY configuration constant.
+ * task priority is set by the CONFIG_TIMER_TASK_PRIORITY CONFIG_uration constant.
  *
  * Example usage:
  * @verbatim

@@ -1,5 +1,5 @@
 /*
-    FreeRTOS V8.2.2 - Copyright (C) 2015 Real Time Engineers Ltd.
+    FreeRTOS V8.2.3 - Copyright (C) 2015 Real Time Engineers Ltd.
     All rights reserved
 
     VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
@@ -8,7 +8,7 @@
 
     FreeRTOS is free software; you can redistribute it and/or modify it under
     the terms of the GNU General Public License (version 2) as published by the
-    Free Software Foundation >>!AND MODIFIED BY!<< the FreeRTOS exception.
+    Free Software Foundation >>>> AND MODIFIED BY <<<< the FreeRTOS exception.
 
     ***************************************************************************
     >>!   NOTE: The modification to the GPL is included to allow you to     !<<
@@ -110,7 +110,7 @@ extern "C" {
  */
 
 #ifndef CONFIG_MINIMAL_STACK_SIZE
-	#error Missing definition:  CONFIG_MINIMAL_STACK_SIZE must be defined in FreeRTOSConfig.h.  configMINIMAL_STACK_SIZE defines the size (in words) of the stack allocated to the idle task.  Refer to the demo project provided for your port for a suitable value.
+	#error Missing definition:  CONFIG_MINIMAL_STACK_SIZE must be defined in FreeRTOSConfig.h.  CONFIG_MINIMAL_STACK_SIZE defines the size (in words) of the stack allocated to the idle task.  Refer to the demo project provided for your port for a suitable value.
 #endif
 
 #ifndef CONFIG_MAX_PRIORITIES
@@ -129,28 +129,28 @@ extern "C" {
 	#error Missing definition:  CONFIG_USE_TICK_HOOK must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef INCLUDE_vTaskPrioritySet
-	#error Missing definition:  INCLUDE_vTaskPrioritySet must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef CONFIG_INCLUDE_vTaskPrioritySet
+	#error Missing definition:  CONFIG_INCLUDE_vTaskPrioritySet must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef INCLUDE_uxTaskPriorityGet
-	#error Missing definition:  INCLUDE_uxTaskPriorityGet must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef CONFIG_INCLUDE_uxTaskPriorityGet
+	#error Missing definition:  CONFIG_INCLUDE_uxTaskPriorityGet must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef INCLUDE_vTaskDelete
-	#error Missing definition:  INCLUDE_vTaskDelete must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef CONFIG_INCLUDE_vTaskDelete
+	#error Missing definition:  CONFIG_INCLUDE_vTaskDelete must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef INCLUDE_vTaskSuspend
-	#error Missing definition:  INCLUDE_vTaskSuspend must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef CONFIG_INCLUDE_vTaskSuspend
+	#error Missing definition:  CONFIG_INCLUDE_vTaskSuspend must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef INCLUDE_vTaskDelayUntil
-	#error Missing definition:  INCLUDE_vTaskDelayUntil must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef CONFIG_INCLUDE_vTaskDelayUntil
+	#error Missing definition:  CONFIG_INCLUDE_vTaskDelayUntil must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef INCLUDE_vTaskDelay
-	#error Missing definition:  INCLUDE_vTaskDelay must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef CONFIG_INCLUDE_vTaskDelay
+	#error Missing definition:  CONFIG_INCLUDE_vTaskDelay must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
 #ifndef CONFIG_USE_16_BIT_TICKS
@@ -171,24 +171,24 @@ extern "C" {
 	#endif
 #endif
 
-#ifndef INCLUDE_xTaskGetIdleTaskHandle
-	#define INCLUDE_xTaskGetIdleTaskHandle 0
+#ifndef CONFIG_INCLUDE_xTaskGetIdleTaskHandle
+	#define CONFIG_INCLUDE_xTaskGetIdleTaskHandle 0
 #endif
 
-#ifndef INCLUDE_xTimerGetTimerDaemonTaskHandle
-	#define INCLUDE_xTimerGetTimerDaemonTaskHandle 0
+#ifndef CONFIG_INCLUDE_xTimerGetTimerDaemonTaskHandle
+	#define CONFIG_INCLUDE_xTimerGetTimerDaemonTaskHandle 0
 #endif
 
-#ifndef INCLUDE_xQueueGetMutexHolder
-	#define INCLUDE_xQueueGetMutexHolder 0
+#ifndef CONFIG_INCLUDE_xQueueGetMutexHolder
+	#define CONFIG_INCLUDE_xQueueGetMutexHolder 0
 #endif
 
-#ifndef INCLUDE_xSemaphoreGetMutexHolder
-	#define INCLUDE_xSemaphoreGetMutexHolder INCLUDE_xQueueGetMutexHolder
+#ifndef CONFIG_INCLUDE_xSemaphoreGetMutexHolder
+	#define CONFIG_INCLUDE_xSemaphoreGetMutexHolder CONFIG_INCLUDE_xQueueGetMutexHolder
 #endif
 
-#ifndef INCLUDE_pcTaskGetTaskName
-	#define INCLUDE_pcTaskGetTaskName 0
+#ifndef CONFIG_INCLUDE_pcTaskGetTaskName
+	#define CONFIG_INCLUDE_pcTaskGetTaskName 0
 #endif
 
 #ifndef CONFIG_USE_APPLICATION_TASK_TAG
@@ -199,12 +199,12 @@ extern "C" {
 	#define CONFIG_NUM_THREAD_LOCAL_STORAGE_POINTERS 0
 #endif
 
-#ifndef INCLUDE_uxTaskGetStackHighWaterMark
-	#define INCLUDE_uxTaskGetStackHighWaterMark 0
+#ifndef CONFIG_INCLUDE_uxTaskGetStackHighWaterMark
+	#define CONFIG_INCLUDE_uxTaskGetStackHighWaterMark 0
 #endif
 
-#ifndef INCLUDE_eTaskGetState
-	#define INCLUDE_eTaskGetState 0
+#ifndef CONFIG_INCLUDE_eTaskGetState
+	#define CONFIG_INCLUDE_eTaskGetState 0
 #endif
 
 #ifndef CONFIG_USE_RECURSIVE_MUTEXES
@@ -243,16 +243,16 @@ extern "C" {
 	#error CONFIG_MAX_TASK_NAME_LEN must be set to a minimum of 1 in FreeRTOSConfig.h
 #endif
 
-#ifndef INCLUDE_xTaskResumeFromISR
-	#define INCLUDE_xTaskResumeFromISR 1
+#ifndef CONFIG_INCLUDE_xTaskResumeFromISR
+	#define CONFIG_INCLUDE_xTaskResumeFromISR 1
 #endif
 
-#ifndef INCLUDE_xEventGroupSetBitFromISR
-	#define INCLUDE_xEventGroupSetBitFromISR 0
+#ifndef CONFIG_INCLUDE_xEventGroupSetBitFromISR
+	#define CONFIG_INCLUDE_xEventGroupSetBitFromISR 0
 #endif
 
-#ifndef INCLUDE_xTimerPendFunctionCall
-	#define INCLUDE_xTimerPendFunctionCall 0
+#ifndef CONFIG_INCLUDE_xTimerPendFunctionCall
+	#define CONFIG_INCLUDE_xTimerPendFunctionCall 0
 #endif
 
 #ifndef CONFIG_ASSERT
@@ -266,25 +266,25 @@ extern "C" {
 #if CONFIG_USE_TIMERS == 1
 
 	#ifndef CONFIG_TIMER_TASK_PRIORITY
-		#error If CONFIG_USE_TIMERS is set to 1 then configTIMER_TASK_PRIORITY must also be defined.
+		#error If CONFIG_USE_TIMERS is set to 1 then CONFIG_TIMER_TASK_PRIORITY must also be defined.
 	#endif /* CONFIG_TIMER_TASK_PRIORITY */
 
 	#ifndef CONFIG_TIMER_QUEUE_LENGTH
-		#error If CONFIG_USE_TIMERS is set to 1 then configTIMER_QUEUE_LENGTH must also be defined.
+		#error If CONFIG_USE_TIMERS is set to 1 then CONFIG_TIMER_QUEUE_LENGTH must also be defined.
 	#endif /* CONFIG_TIMER_QUEUE_LENGTH */
 
 	#ifndef CONFIG_TIMER_TASK_STACK_DEPTH
-		#error If CONFIG_USE_TIMERS is set to 1 then configTIMER_TASK_STACK_DEPTH must also be defined.
+		#error If CONFIG_USE_TIMERS is set to 1 then CONFIG_TIMER_TASK_STACK_DEPTH must also be defined.
 	#endif /* CONFIG_TIMER_TASK_STACK_DEPTH */
 
 #endif /* CONFIG_USE_TIMERS */
 
-#ifndef INCLUDE_xTaskGetSchedulerState
-	#define INCLUDE_xTaskGetSchedulerState 0
+#ifndef CONFIG_INCLUDE_xTaskGetSchedulerState
+	#define CONFIG_INCLUDE_xTaskGetSchedulerState 0
 #endif
 
-#ifndef INCLUDE_xTaskGetCurrentTaskHandle
-	#define INCLUDE_xTaskGetCurrentTaskHandle 0
+#ifndef CONFIG_INCLUDE_xTaskGetCurrentTaskHandle
+	#define CONFIG_INCLUDE_xTaskGetCurrentTaskHandle 0
 #endif
 
 
@@ -645,10 +645,6 @@ extern "C" {
 	#define traceTASK_NOTIFY_GIVE_FROM_ISR()
 #endif
 
-#ifndef traceTASK_DELAY_SUSPEND
-	#define traceTASK_DELAY_SUSPEND( pxCurrentTCB )
-#endif
-
 #ifndef CONFIG_GENERATE_RUN_TIME_STATS
 	#define CONFIG_GENERATE_RUN_TIME_STATS 0
 #endif
@@ -727,8 +723,8 @@ extern "C" {
 	#define CONFIG_USE_TIME_SLICING 1
 #endif
 
-#ifndef CONFIG_INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS
-	#define CONFIG_INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS 0
+#ifndef CONFIG_CONFIG_INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS
+	#define CONFIG_CONFIG_INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS 0
 #endif
 
 #ifndef CONFIG_USE_NEWLIB_REENTRANT
@@ -822,6 +818,14 @@ V8 if desired. */
 	#define xListItem ListItem_t
 	#define xList List_t
 #endif /* CONFIG_ENABLE_BACKWARD_COMPATIBILITY */
+
+/* Set CONFIG_USE_TASK_FPU_SUPPORT to 0 to omit floating point support even
+if floating point hardware is otherwise supported by the FreeRTOS port in use.
+This constant is not supported by all FreeRTOS ports that include floating 
+point support. */
+#ifndef CONFIG_USE_TASK_FPU_SUPPORT
+	#define CONFIG_USE_TASK_FPU_SUPPORT 1
+#endif
 
 #ifdef __cplusplus
 }

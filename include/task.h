@@ -1,5 +1,5 @@
 /*
-    FreeRTOS V8.2.2 - Copyright (C) 2015 Real Time Engineers Ltd.
+    FreeRTOS V8.2.3 - Copyright (C) 2015 Real Time Engineers Ltd.
     All rights reserved
 
     VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
@@ -8,7 +8,7 @@
 
     FreeRTOS is free software; you can redistribute it and/or modify it under
     the terms of the GNU General Public License (version 2) as published by the
-    Free Software Foundation >>!AND MODIFIED BY!<< the FreeRTOS exception.
+    Free Software Foundation >>>> AND MODIFIED BY <<<< the FreeRTOS exception.
 
     ***************************************************************************
     >>!   NOTE: The modification to the GPL is included to allow you to     !<<
@@ -85,10 +85,10 @@ extern "C" {
  * MACROS AND DEFINITIONS
  *----------------------------------------------------------*/
 
-#define tskKERNEL_VERSION_NUMBER "V8.2.2"
+#define tskKERNEL_VERSION_NUMBER "V8.2.3"
 #define tskKERNEL_VERSION_MAJOR 8
 #define tskKERNEL_VERSION_MINOR 2
-#define tskKERNEL_VERSION_BUILD 2
+#define tskKERNEL_VERSION_BUILD 3
 
 /**
  * task. h
@@ -465,7 +465,7 @@ void vTaskAllocateMPURegions( TaskHandle_t xTask, const MemoryRegion_t * const p
  * task. h
  * <pre>void vTaskDelete( TaskHandle_t xTask );</pre>
  *
- * CONFIG_CONFIG_INCLUDE_vTaskDelete must be defined as 1 for this function to be available.
+ * CONFIG_INCLUDE_vTaskDelete must be defined as 1 for this function to be available.
  * See the CONFIG_uration section for more information.
  *
  * Remove a task from the RTOS real time kernel's management.  The task being
@@ -515,7 +515,7 @@ void vTaskDelete( TaskHandle_t xTaskToDelete ) PRIVILEGED_FUNCTION;
  * portTICK_PERIOD_MS can be used to calculate real time from the tick
  * rate - with the resolution of one tick period.
  *
- * CONFIG_CONFIG_INCLUDE_vTaskDelay must be defined as 1 for this function to be available.
+ * CONFIG_INCLUDE_vTaskDelay must be defined as 1 for this function to be available.
  * See the CONFIG_uration section for more information.
  *
  *
@@ -558,7 +558,7 @@ void vTaskDelay( const TickType_t xTicksToDelay ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>void vTaskDelayUntil( TickType_t *pxPreviousWakeTime, const TickType_t xTimeIncrement );</pre>
  *
- * CONFIG_CONFIG_INCLUDE_vTaskDelayUntil must be defined as 1 for this function to be available.
+ * CONFIG_INCLUDE_vTaskDelayUntil must be defined as 1 for this function to be available.
  * See the CONFIG_uration section for more information.
  *
  * Delay a task until a specified time.  This function can be used by periodic
@@ -617,7 +617,7 @@ void vTaskDelayUntil( TickType_t * const pxPreviousWakeTime, const TickType_t xT
  * task. h
  * <pre>UBaseType_t uxTaskPriorityGet( TaskHandle_t xTask );</pre>
  *
- * CONFIG_CONFIG_INCLUDE_uxTaskPriorityGet must be defined as 1 for this function to be available.
+ * CONFIG_INCLUDE_uxTaskPriorityGet must be defined as 1 for this function to be available.
  * See the CONFIG_uration section for more information.
  *
  * Obtain the priority of any task.
@@ -672,7 +672,7 @@ UBaseType_t uxTaskPriorityGetFromISR( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>eTaskState eTaskGetState( TaskHandle_t xTask );</pre>
  *
- * CONFIG_CONFIG_INCLUDE_eTaskGetState must be defined as 1 for this function to be available.
+ * CONFIG_INCLUDE_eTaskGetState must be defined as 1 for this function to be available.
  * See the CONFIG_uration section for more information.
  *
  * Obtain the state of any task.  States are encoded by the eTaskState
@@ -690,7 +690,7 @@ eTaskState eTaskGetState( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>void vTaskPrioritySet( TaskHandle_t xTask, UBaseType_t uxNewPriority );</pre>
  *
- * CONFIG_CONFIG_INCLUDE_vTaskPrioritySet must be defined as 1 for this function to be available.
+ * CONFIG_INCLUDE_vTaskPrioritySet must be defined as 1 for this function to be available.
  * See the CONFIG_uration section for more information.
  *
  * Set the priority of any task.
@@ -732,7 +732,7 @@ void vTaskPrioritySet( TaskHandle_t xTask, UBaseType_t uxNewPriority ) PRIVILEGE
  * task. h
  * <pre>void vTaskSuspend( TaskHandle_t xTaskToSuspend );</pre>
  *
- * CONFIG_CONFIG_INCLUDE_vTaskSuspend must be defined as 1 for this function to be available.
+ * CONFIG_INCLUDE_vTaskSuspend must be defined as 1 for this function to be available.
  * See the CONFIG_uration section for more information.
  *
  * Suspend any task.  When suspended a task will never get any microcontroller
@@ -783,7 +783,7 @@ void vTaskSuspend( TaskHandle_t xTaskToSuspend ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>void vTaskResume( TaskHandle_t xTaskToResume );</pre>
  *
- * CONFIG_CONFIG_INCLUDE_vTaskSuspend must be defined as 1 for this function to be available.
+ * CONFIG_INCLUDE_vTaskSuspend must be defined as 1 for this function to be available.
  * See the CONFIG_uration section for more information.
  *
  * Resumes a suspended task.
@@ -832,7 +832,7 @@ void vTaskResume( TaskHandle_t xTaskToResume ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>void xTaskResumeFromISR( TaskHandle_t xTaskToResume );</pre>
  *
- * CONFIG_CONFIG_INCLUDE_xTaskResumeFromISR must be defined as 1 for this function to be
+ * CONFIG_INCLUDE_xTaskResumeFromISR must be defined as 1 for this function to be
  * available.  See the CONFIG_uration section for more information.
  *
  * An implementation of vTaskResume() that can be called from within an ISR.
@@ -1102,7 +1102,7 @@ UBaseType_t uxTaskGetNumberOfTasks( void ) PRIVILEGED_FUNCTION;
  *
  * @return The text (human readable) name of the task referenced by the handle
  * xTaskToQuery.  A task can query its own name by either passing in its own
- * handle, or by setting xTaskToQuery to NULL.  CONFIG_CONFIG_INCLUDE_pcTaskGetTaskName must be
+ * handle, or by setting xTaskToQuery to NULL.  CONFIG_INCLUDE_pcTaskGetTaskName must be
  * set to 1 in FreeRTOSConfig.h for pcTaskGetTaskName() to be available.
  *
  * \defgroup pcTaskGetTaskName pcTaskGetTaskName
@@ -1114,7 +1114,7 @@ char *pcTaskGetTaskName( TaskHandle_t xTaskToQuery ) PRIVILEGED_FUNCTION; /*lint
  * task.h
  * <PRE>UBaseType_t uxTaskGetStackHighWaterMark( TaskHandle_t xTask );</PRE>
  *
- * CONFIG_CONFIG_INCLUDE_uxTaskGetStackHighWaterMark must be set to 1 in FreeRTOSConfig.h for
+ * CONFIG_INCLUDE_uxTaskGetStackHighWaterMark must be set to 1 in FreeRTOSConfig.h for
  * this function to be available.
  *
  * Returns the high water mark of the stack associated with xTask.  That is,
@@ -1186,7 +1186,7 @@ BaseType_t xTaskCallApplicationTaskHook( TaskHandle_t xTask, void *pvParameter )
 
 /**
  * xTaskGetIdleTaskHandle() is only available if
- * CONFIG_CONFIG_INCLUDE_xTaskGetIdleTaskHandle is set to 1 in FreeRTOSConfig.h.
+ * CONFIG_INCLUDE_xTaskGetIdleTaskHandle is set to 1 in FreeRTOSConfig.h.
  *
  * Simply returns the handle of the idle task.  It is not valid to call
  * xTaskGetIdleTaskHandle() before the scheduler has been started.
@@ -1811,6 +1811,22 @@ void vTaskNotifyGiveFromISR( TaskHandle_t xTaskToNotify, BaseType_t *pxHigherPri
  * \ingroup TaskNotifications
  */
 uint32_t ulTaskNotifyTake( BaseType_t xClearCountOnExit, TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
+
+/**
+ * task. h
+ * <PRE>BaseType_t xTaskNotifyStateClear( TaskHandle_t xTask );</pre>
+ *
+ * If the notification state of the task referenced by the handle xTask is
+ * eNotified, then set the task's notification state to eNotWaitingNotification.
+ * The task's notification value is not altered.  Set xTask to NULL to clear the
+ * notification state of the calling task.
+ *
+ * @return pdTRUE if the task's notification state was set to
+ * eNotWaitingNotification, otherwise pdFALSE.
+ * \defgroup xTaskNotifyStateClear xTaskNotifyStateClear
+ * \ingroup TaskNotifications
+ */
+BaseType_t xTaskNotifyStateClear( TaskHandle_t xTask );
 
 /*-----------------------------------------------------------
  * SCHEDULER INTERNALS AVAILABLE FOR PORTING PURPOSES
