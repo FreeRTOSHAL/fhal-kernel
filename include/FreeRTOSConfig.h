@@ -122,4 +122,9 @@
 # define CONFIG_INCLUDE_xSemaphoreGetMutexHolder 0
 #endif
 
+#ifdef CONFIG_CPU_CLOCK_BY_INTERFACE
+# include <clock.h>
+# define CONFIG_CPU_CLOCK_HZ clock_getCPUSpeed(clock_init())
+#endif
+
 #endif
