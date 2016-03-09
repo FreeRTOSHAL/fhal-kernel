@@ -634,17 +634,16 @@ menu "Queue Settings"
 			Set to 1 to include counting semaphore functionality in the build, or 0 to omit counting semaphore functionality from the 
 			build.
 endmenu
-menu "Event Group Setting"
+menuconfig EVENT_GROUP
+	bool "Event Group Setting"
 	depends on USE_TIMERS
 	depends on INCLUDE_xTimerPendFunctionCall
 	config INCLUDE_xEventGroupSetBitFromISR
 		bool "Include xEventGroupSetBitFromISR"
 		default n
-		depends on USE_TIMERS
-		depends on INCLUDE_xTimerPendFunctionCall
+		depends on EVENT_GROUP
 		help 
 			Include xEventGroupSetBitFromISR Function
-endmenu
 menuconfig USE_TIMERS
 	bool "Timer Settings"
 	default n
