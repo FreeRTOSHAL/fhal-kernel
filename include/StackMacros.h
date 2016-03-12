@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -75,9 +75,9 @@
  * out is currently overflowed, or looks like it might have overflowed in the
  * past.
  *
- * Setting CONFIG_CHECK_FOR_STACK_OVERFLOW to 1 will cause the macro to check
+ * Setting configCHECK_FOR_STACK_OVERFLOW to 1 will cause the macro to check
  * the current stack state only - comparing the current top of stack value to
- * the stack limit.  Setting CONFIG_CHECK_FOR_STACK_OVERFLOW to greater than 1
+ * the stack limit.  Setting configCHECK_FOR_STACK_OVERFLOW to greater than 1
  * will also cause the last few stack bytes to be checked to ensure the value
  * to which the bytes were set when the task was created have not been
  * overwritten.  Note this second test does not guarantee that an overflowed
@@ -86,7 +86,7 @@
 
 /*-----------------------------------------------------------*/
 
-#if( ( CONFIG_CHECK_FOR_STACK_OVERFLOW == 1 ) && ( portSTACK_GROWTH < 0 ) )
+#if( ( configCHECK_FOR_STACK_OVERFLOW == 1 ) && ( portSTACK_GROWTH < 0 ) )
 
 	/* Only the current stack state is to be checked. */
 	#define taskCHECK_FOR_STACK_OVERFLOW()																\
@@ -98,10 +98,10 @@
 		}																								\
 	}
 
-#endif /* CONFIG_CHECK_FOR_STACK_OVERFLOW == 1 */
+#endif /* configCHECK_FOR_STACK_OVERFLOW == 1 */
 /*-----------------------------------------------------------*/
 
-#if( ( CONFIG_CHECK_FOR_STACK_OVERFLOW == 1 ) && ( portSTACK_GROWTH > 0 ) )
+#if( ( configCHECK_FOR_STACK_OVERFLOW == 1 ) && ( portSTACK_GROWTH > 0 ) )
 
 	/* Only the current stack state is to be checked. */
 	#define taskCHECK_FOR_STACK_OVERFLOW()																\
@@ -114,10 +114,10 @@
 		}																								\
 	}
 
-#endif /* CONFIG_CHECK_FOR_STACK_OVERFLOW == 1 */
+#endif /* configCHECK_FOR_STACK_OVERFLOW == 1 */
 /*-----------------------------------------------------------*/
 
-#if( ( CONFIG_CHECK_FOR_STACK_OVERFLOW > 1 ) && ( portSTACK_GROWTH < 0 ) )
+#if( ( configCHECK_FOR_STACK_OVERFLOW > 1 ) && ( portSTACK_GROWTH < 0 ) )
 
 	#define taskCHECK_FOR_STACK_OVERFLOW()																\
 	{																									\
@@ -133,10 +133,10 @@
 		}																								\
 	}
 
-#endif /* #if( CONFIG_CHECK_FOR_STACK_OVERFLOW > 1 ) */
+#endif /* #if( configCHECK_FOR_STACK_OVERFLOW > 1 ) */
 /*-----------------------------------------------------------*/
 
-#if( ( CONFIG_CHECK_FOR_STACK_OVERFLOW > 1 ) && ( portSTACK_GROWTH > 0 ) )
+#if( ( configCHECK_FOR_STACK_OVERFLOW > 1 ) && ( portSTACK_GROWTH > 0 ) )
 
 	#define taskCHECK_FOR_STACK_OVERFLOW()																								\
 	{																																	\
@@ -157,7 +157,7 @@
 		}																																\
 	}
 
-#endif /* #if( CONFIG_CHECK_FOR_STACK_OVERFLOW > 1 ) */
+#endif /* #if( configCHECK_FOR_STACK_OVERFLOW > 1 ) */
 /*-----------------------------------------------------------*/
 
 /* Remove stack overflow macro if not being used. */

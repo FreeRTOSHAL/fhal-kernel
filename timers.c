@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -70,32 +70,32 @@
 /* Standard includes. */
 #include <stdlib.h>
 
-/* Defining MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE prevents task.h from redefining
+/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
 task.h is included from an application file. */
-#define MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "timers.h"
 
-#if ( CONFIG_INCLUDE_xTimerPendFunctionCall == 1 ) && ( CONFIG_USE_TIMERS == 0 )
-	#error CONFIG_USE_TIMERS must be set to 1 to make the xTimerPendFunctionCall() function available.
+#if ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 0 )
+	#error configUSE_TIMERS must be set to 1 to make the xTimerPendFunctionCall() function available.
 #endif
 
 /* Lint e961 and e750 are suppressed as a MISRA exception justified because the
-MPU ports require MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE to be defined for the
+MPU ports require MPU_WRAPPERS_INCLUDED_FROM_API_FILE to be defined for the
 header files above, but not in this file, in order to generate the correct
 privileged Vs unprivileged linkage and placement. */
-#undef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE /*lint !e961 !e750. */
+#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE /*lint !e961 !e750. */
 
 
-/* This entire source file will be skipped if the application is not CONFIG_ured
+/* This entire source file will be skipped if the application is not configured
 to include software timer functionality.  This #if is closed at the very bottom
 of this file.  If you want to include software timer functionality then ensure
-CONFIG_USE_TIMERS is set to 1 in FreeRTOSConfig.h. */
-#if ( CONFIG_USE_TIMERS == 1 )
+configUSE_TIMERS is set to 1 in FreeRTOSConfig.h. */
+#if ( configUSE_TIMERS == 1 )
 
 /* Misc definitions. */
 #define tmrNO_DELAY		( TickType_t ) 0U
@@ -109,7 +109,7 @@ typedef struct tmrTimerControl
 	UBaseType_t				uxAutoReload;		/*<< Set to pdTRUE if the timer should be automatically restarted once expired.  Set to pdFALSE if the timer is, in effect, a one-shot timer. */
 	void 					*pvTimerID;			/*<< An ID to identify the timer.  This allows the timer to be identified when the same callback is used for multiple timers. */
 	TimerCallbackFunction_t	pxCallbackFunction;	/*<< The function that will be called when the timer expires. */
-	#if( CONFIG_USE_TRACE_FACILITY == 1 )
+	#if( configUSE_TRACE_FACILITY == 1 )
 		UBaseType_t			uxTimerNumber;		/*<< An ID assigned by trace tools such as FreeRTOS+Trace */
 	#endif
 } xTIMER;
@@ -148,9 +148,9 @@ typedef struct tmrTimerQueueMessage
 
 		/* Don't include xCallbackParameters if it is not going to be used as
 		it makes the structure (and therefore the timer queue) larger. */
-		#if ( CONFIG_INCLUDE_xTimerPendFunctionCall == 1 )
+		#if ( INCLUDE_xTimerPendFunctionCall == 1 )
 			CallbackParameters_t xCallbackParameters;
-		#endif /* CONFIG_INCLUDE_xTimerPendFunctionCall */
+		#endif /* INCLUDE_xTimerPendFunctionCall */
 	} u;
 } DaemonTaskMessage_t;
 
@@ -168,7 +168,7 @@ PRIVILEGED_DATA static List_t *pxOverflowTimerList;
 /* A queue that is used to send commands to the timer service task. */
 PRIVILEGED_DATA static QueueHandle_t xTimerQueue = NULL;
 
-#if ( CONFIG_INCLUDE_xTimerGetTimerDaemonTaskHandle == 1 )
+#if ( INCLUDE_xTimerGetTimerDaemonTaskHandle == 1 )
 
 	PRIVILEGED_DATA static TaskHandle_t xTimerTaskHandle = NULL;
 
@@ -242,23 +242,23 @@ BaseType_t xTimerCreateTimerTask( void )
 BaseType_t xReturn = pdFAIL;
 
 	/* This function is called when the scheduler is started if
-	CONFIG_USE_TIMERS is set to 1.  Check that the infrastructure used by the
+	configUSE_TIMERS is set to 1.  Check that the infrastructure used by the
 	timer service task has been created/initialised.  If timers have already
 	been created then the initialisation will already have been performed. */
 	prvCheckForValidListAndQueue();
 
 	if( xTimerQueue != NULL )
 	{
-		#if ( CONFIG_INCLUDE_xTimerGetTimerDaemonTaskHandle == 1 )
+		#if ( INCLUDE_xTimerGetTimerDaemonTaskHandle == 1 )
 		{
 			/* Create the timer task, storing its handle in xTimerTaskHandle so
 			it can be returned by the xTimerGetTimerDaemonTaskHandle() function. */
-			xReturn = xTaskCreate( prvTimerTask, "Tmr Svc", ( uint16_t ) CONFIG_TIMER_TASK_STACK_DEPTH, NULL, ( ( UBaseType_t ) CONFIG_TIMER_TASK_PRIORITY ) | portPRIVILEGE_BIT, &xTimerTaskHandle );
+			xReturn = xTaskCreate( prvTimerTask, "Tmr Svc", ( uint16_t ) configTIMER_TASK_STACK_DEPTH, NULL, ( ( UBaseType_t ) configTIMER_TASK_PRIORITY ) | portPRIVILEGE_BIT, &xTimerTaskHandle );
 		}
 		#else
 		{
 			/* Create the timer task without storing its handle. */
-			xReturn = xTaskCreate( prvTimerTask, "Tmr Svc", ( uint16_t ) CONFIG_TIMER_TASK_STACK_DEPTH, NULL, ( ( UBaseType_t ) CONFIG_TIMER_TASK_PRIORITY ) | portPRIVILEGE_BIT, NULL);
+			xReturn = xTaskCreate( prvTimerTask, "Tmr Svc", ( uint16_t ) configTIMER_TASK_STACK_DEPTH, NULL, ( ( UBaseType_t ) configTIMER_TASK_PRIORITY ) | portPRIVILEGE_BIT, NULL);
 		}
 		#endif
 	}
@@ -267,7 +267,7 @@ BaseType_t xReturn = pdFAIL;
 		mtCOVERAGE_TEST_MARKER();
 	}
 
-	CONFIG_ASSERT( xReturn );
+	configASSERT( xReturn );
 	return xReturn;
 }
 /*-----------------------------------------------------------*/
@@ -307,7 +307,7 @@ Timer_t *pxNewTimer;
 	}
 
 	/* 0 is not a valid value for xTimerPeriodInTicks. */
-	CONFIG_ASSERT( ( xTimerPeriodInTicks > 0 ) );
+	configASSERT( ( xTimerPeriodInTicks > 0 ) );
 
 	return ( TimerHandle_t ) pxNewTimer;
 }
@@ -318,7 +318,7 @@ BaseType_t xTimerGenericCommand( TimerHandle_t xTimer, const BaseType_t xCommand
 BaseType_t xReturn = pdFAIL;
 DaemonTaskMessage_t xMessage;
 
-	CONFIG_ASSERT( xTimer );
+	configASSERT( xTimer );
 
 	/* Send a message to the timer service task to perform a particular action
 	on a particular timer definition. */
@@ -356,13 +356,13 @@ DaemonTaskMessage_t xMessage;
 }
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_INCLUDE_xTimerGetTimerDaemonTaskHandle == 1 )
+#if ( INCLUDE_xTimerGetTimerDaemonTaskHandle == 1 )
 
 	TaskHandle_t xTimerGetTimerDaemonTaskHandle( void )
 	{
 		/* If xTimerGetTimerDaemonTaskHandle() is called before the scheduler has been
 		started, then xTimerTaskHandle will be NULL. */
-		CONFIG_ASSERT( ( xTimerTaskHandle != NULL ) );
+		configASSERT( ( xTimerTaskHandle != NULL ) );
 		return xTimerTaskHandle;
 	}
 
@@ -373,7 +373,7 @@ const char * pcTimerGetTimerName( TimerHandle_t xTimer )
 {
 Timer_t *pxTimer = ( Timer_t * ) xTimer;
 
-	CONFIG_ASSERT( xTimer );
+	configASSERT( xTimer );
 	return pxTimer->pcTimerName;
 }
 /*-----------------------------------------------------------*/
@@ -400,7 +400,7 @@ Timer_t * const pxTimer = ( Timer_t * ) listGET_OWNER_OF_HEAD_ENTRY( pxCurrentTi
 			/* The timer expired before it was added to the active timer
 			list.  Reload it now.  */
 			xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND_START_DONT_TRACE, xNextExpireTime, NULL, tmrNO_DELAY );
-			CONFIG_ASSERT( xResult );
+			configASSERT( xResult );
 			( void ) xResult;
 		}
 		else
@@ -601,7 +601,7 @@ TickType_t xTimeNow;
 
 	while( xQueueReceive( xTimerQueue, &xMessage, tmrNO_DELAY ) != pdFAIL ) /*lint !e603 xMessage does not have to be initialised as it is passed out, not in, and it is not used unless xQueueReceive() returns pdTRUE. */
 	{
-		#if ( CONFIG_INCLUDE_xTimerPendFunctionCall == 1 )
+		#if ( INCLUDE_xTimerPendFunctionCall == 1 )
 		{
 			/* Negative commands are pended function calls rather than timer
 			commands. */
@@ -611,7 +611,7 @@ TickType_t xTimeNow;
 
 				/* The timer uses the xCallbackParameters member to request a
 				callback be executed.  Check the callback is not NULL. */
-				CONFIG_ASSERT( pxCallback );
+				configASSERT( pxCallback );
 
 				/* Call the function. */
 				pxCallback->pxCallbackFunction( pxCallback->pvParameter1, pxCallback->ulParameter2 );
@@ -621,7 +621,7 @@ TickType_t xTimeNow;
 				mtCOVERAGE_TEST_MARKER();
 			}
 		}
-		#endif /* CONFIG_INCLUDE_xTimerPendFunctionCall */
+		#endif /* INCLUDE_xTimerPendFunctionCall */
 
 		/* Commands that are positive are timer commands rather than pended
 		function calls. */
@@ -669,7 +669,7 @@ TickType_t xTimeNow;
 						if( pxTimer->uxAutoReload == ( UBaseType_t ) pdTRUE )
 						{
 							xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND_START_DONT_TRACE, xMessage.u.xTimerParameters.xMessageValue + pxTimer->xTimerPeriodInTicks, NULL, tmrNO_DELAY );
-							CONFIG_ASSERT( xResult );
+							configASSERT( xResult );
 							( void ) xResult;
 						}
 						else
@@ -692,7 +692,7 @@ TickType_t xTimeNow;
 				case tmrCOMMAND_CHANGE_PERIOD :
 				case tmrCOMMAND_CHANGE_PERIOD_FROM_ISR :
 					pxTimer->xTimerPeriodInTicks = xMessage.u.xTimerParameters.xMessageValue;
-					CONFIG_ASSERT( ( pxTimer->xTimerPeriodInTicks > 0 ) );
+					configASSERT( ( pxTimer->xTimerPeriodInTicks > 0 ) );
 
 					/* The new period does not really have a reference, and can be
 					longer or shorter than the old one.  The command time is
@@ -761,7 +761,7 @@ BaseType_t xResult;
 			else
 			{
 				xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND_START_DONT_TRACE, xNextExpireTime, NULL, tmrNO_DELAY );
-				CONFIG_ASSERT( xResult );
+				configASSERT( xResult );
 				( void ) xResult;
 			}
 		}
@@ -790,10 +790,10 @@ static void prvCheckForValidListAndQueue( void )
 			vListInitialise( &xActiveTimerList2 );
 			pxCurrentTimerList = &xActiveTimerList1;
 			pxOverflowTimerList = &xActiveTimerList2;
-			xTimerQueue = xQueueCreate( ( UBaseType_t ) CONFIG_TIMER_QUEUE_LENGTH, sizeof( DaemonTaskMessage_t ) );
-			CONFIG_ASSERT( xTimerQueue );
+			xTimerQueue = xQueueCreate( ( UBaseType_t ) configTIMER_QUEUE_LENGTH, sizeof( DaemonTaskMessage_t ) );
+			configASSERT( xTimerQueue );
 
-			#if ( CONFIG_QUEUE_REGISTRY_SIZE > 0 )
+			#if ( configQUEUE_REGISTRY_SIZE > 0 )
 			{
 				if( xTimerQueue != NULL )
 				{
@@ -804,7 +804,7 @@ static void prvCheckForValidListAndQueue( void )
 					mtCOVERAGE_TEST_MARKER();
 				}
 			}
-			#endif /* CONFIG_QUEUE_REGISTRY_SIZE */
+			#endif /* configQUEUE_REGISTRY_SIZE */
 		}
 		else
 		{
@@ -820,7 +820,7 @@ BaseType_t xTimerIsTimerActive( TimerHandle_t xTimer )
 BaseType_t xTimerIsInActiveList;
 Timer_t *pxTimer = ( Timer_t * ) xTimer;
 
-	CONFIG_ASSERT( xTimer );
+	configASSERT( xTimer );
 
 	/* Is the timer in the list of active timers? */
 	taskENTER_CRITICAL();
@@ -841,7 +841,7 @@ void *pvTimerGetTimerID( const TimerHandle_t xTimer )
 Timer_t * const pxTimer = ( Timer_t * ) xTimer;
 void *pvReturn;
 
-	CONFIG_ASSERT( xTimer );
+	configASSERT( xTimer );
 
 	taskENTER_CRITICAL();
 	{
@@ -857,7 +857,7 @@ void vTimerSetTimerID( TimerHandle_t xTimer, void *pvNewID )
 {
 Timer_t * const pxTimer = ( Timer_t * ) xTimer;
 
-	CONFIG_ASSERT( xTimer );
+	configASSERT( xTimer );
 
 	taskENTER_CRITICAL();
 	{
@@ -867,7 +867,7 @@ Timer_t * const pxTimer = ( Timer_t * ) xTimer;
 }
 /*-----------------------------------------------------------*/
 
-#if( CONFIG_INCLUDE_xTimerPendFunctionCall == 1 )
+#if( INCLUDE_xTimerPendFunctionCall == 1 )
 
 	BaseType_t xTimerPendFunctionCallFromISR( PendedFunction_t xFunctionToPend, void *pvParameter1, uint32_t ulParameter2, BaseType_t *pxHigherPriorityTaskWoken )
 	{
@@ -888,10 +888,10 @@ Timer_t * const pxTimer = ( Timer_t * ) xTimer;
 		return xReturn;
 	}
 
-#endif /* CONFIG_INCLUDE_xTimerPendFunctionCall */
+#endif /* INCLUDE_xTimerPendFunctionCall */
 /*-----------------------------------------------------------*/
 
-#if( CONFIG_INCLUDE_xTimerPendFunctionCall == 1 )
+#if( INCLUDE_xTimerPendFunctionCall == 1 )
 
 	BaseType_t xTimerPendFunctionCall( PendedFunction_t xFunctionToPend, void *pvParameter1, uint32_t ulParameter2, TickType_t xTicksToWait )
 	{
@@ -901,7 +901,7 @@ Timer_t * const pxTimer = ( Timer_t * ) xTimer;
 		/* This function can only be called after a timer has been created or
 		after the scheduler has been started because, until then, the timer
 		queue does not exist. */
-		CONFIG_ASSERT( xTimerQueue );
+		configASSERT( xTimerQueue );
 
 		/* Complete the message with the function parameters and post it to the
 		daemon task. */
@@ -917,13 +917,13 @@ Timer_t * const pxTimer = ( Timer_t * ) xTimer;
 		return xReturn;
 	}
 
-#endif /* CONFIG_INCLUDE_xTimerPendFunctionCall */
+#endif /* INCLUDE_xTimerPendFunctionCall */
 /*-----------------------------------------------------------*/
 
-/* This entire source file will be skipped if the application is not CONFIG_ured
+/* This entire source file will be skipped if the application is not configured
 to include software timer functionality.  If you want to include software timer
-functionality then ensure CONFIG_USE_TIMERS is set to 1 in FreeRTOSConfig.h. */
-#endif /* CONFIG_USE_TIMERS == 1 */
+functionality then ensure configUSE_TIMERS is set to 1 in FreeRTOSConfig.h. */
+#endif /* configUSE_TIMERS == 1 */
 
 
 

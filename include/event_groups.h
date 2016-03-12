@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -123,7 +123,7 @@ typedef void * EventGroupHandle_t;
 
 /* 
  * The type that holds event bits always matches TickType_t - therefore the
- * number of bits it holds is set by CONFIG_USE_16_BIT_TICKS (16 bits if set to 1,
+ * number of bits it holds is set by configUSE_16_BIT_TICKS (16 bits if set to 1,
  * 32 bits if set to 0. 
  *
  * \defgroup EventBits_t EventBits_t
@@ -141,9 +141,9 @@ typedef TickType_t EventBits_t;
  *
  * Although event groups are not related to ticks, for internal implementation
  * reasons the number of bits available for use in an event group is dependent
- * on the CONFIG_USE_16_BIT_TICKS setting in FreeRTOSConfig.h.  If
- * CONFIG_USE_16_BIT_TICKS is 1 then each event group contains 8 usable bits (bit
- * 0 to bit 7).  If CONFIG_USE_16_BIT_TICKS is set to 0 then each event group has
+ * on the configUSE_16_BIT_TICKS setting in FreeRTOSConfig.h.  If
+ * configUSE_16_BIT_TICKS is 1 then each event group contains 8 usable bits (bit
+ * 0 to bit 7).  If configUSE_16_BIT_TICKS is set to 0 then each event group has
  * 24 usable bits (bit 0 to bit 23).  The EventBits_t type is used to store
  * event bits within an event group.
  *
@@ -379,7 +379,7 @@ EventBits_t xEventGroupClearBits( EventGroupHandle_t xEventGroup, const EventBit
  * \defgroup xEventGroupSetBitsFromISR xEventGroupSetBitsFromISR
  * \ingroup EventGroup
  */
-#if( CONFIG_USE_TRACE_FACILITY == 1 )
+#if( configUSE_TRACE_FACILITY == 1 )
 	BaseType_t xEventGroupClearBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet ) PRIVILEGED_FUNCTION;
 #else
 	#define xEventGroupClearBitsFromISR( xEventGroup, uxBitsToClear ) xTimerPendFunctionCallFromISR( vEventGroupClearBitsCallback, ( void * ) xEventGroup, ( uint32_t ) uxBitsToClear, NULL )
@@ -531,7 +531,7 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
  * \defgroup xEventGroupSetBitsFromISR xEventGroupSetBitsFromISR
  * \ingroup EventGroup
  */
-#if( CONFIG_USE_TRACE_FACILITY == 1 )
+#if( configUSE_TRACE_FACILITY == 1 )
 	BaseType_t xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet, BaseType_t *pxHigherPriorityTaskWoken ) PRIVILEGED_FUNCTION;
 #else
 	#define xEventGroupSetBitsFromISR( xEventGroup, uxBitsToSet, pxHigherPriorityTaskWoken ) xTimerPendFunctionCallFromISR( vEventGroupSetBitsCallback, ( void * ) xEventGroup, ( uint32_t ) uxBitsToSet, pxHigherPriorityTaskWoken )
@@ -717,7 +717,7 @@ void vEventGroupDelete( EventGroupHandle_t xEventGroup ) PRIVILEGED_FUNCTION;
 void vEventGroupSetBitsCallback( void *pvEventGroup, const uint32_t ulBitsToSet ) PRIVILEGED_FUNCTION;
 void vEventGroupClearBitsCallback( void *pvEventGroup, const uint32_t ulBitsToClear ) PRIVILEGED_FUNCTION;
 
-#if (CONFIG_USE_TRACE_FACILITY == 1)
+#if (configUSE_TRACE_FACILITY == 1)
 	UBaseType_t uxEventGroupGetNumber( void* xEventGroup ) PRIVILEGED_FUNCTION;
 #endif
 

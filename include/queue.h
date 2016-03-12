@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -461,7 +461,7 @@ typedef void * QueueSetMemberHandle_t;
 	// Create a queue to hold one uint32_t value.  It is strongly
 	// recommended *not* to use xQueueOverwrite() on queues that can
 	// contain more than one value, and doing so will trigger an assertion
-	// if CONFIG_ASSERT() is defined.
+	// if configASSERT() is defined.
 	xQueue = xQueueCreate( 1, sizeof( uint32_t ) );
 
 	// Write the value 10 to the queue using xQueueOverwrite().
@@ -1147,7 +1147,7 @@ void vQueueDelete( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
  	// Create a queue to hold one uint32_t value.  It is strongly
 	// recommended *not* to use xQueueOverwriteFromISR() on queues that can
 	// contain more than one value, and doing so will trigger an assertion
-	// if CONFIG_ASSERT() is defined.
+	// if configASSERT() is defined.
 	xQueue = xQueueCreate( 1, sizeof( uint32_t ) );
 }
 
@@ -1502,8 +1502,8 @@ BaseType_t xQueueGiveMutexRecursive( QueueHandle_t pxMutex ) PRIVILEGED_FUNCTION
  * to be available to a kernel aware debugger.  If you are not using a kernel
  * aware debugger then this function can be ignored.
  *
- * CONFIG_QUEUE_REGISTRY_SIZE defines the maximum number of handles the
- * registry can hold.  CONFIG_QUEUE_REGISTRY_SIZE must be greater than 0
+ * configQUEUE_REGISTRY_SIZE defines the maximum number of handles the
+ * registry can hold.  configQUEUE_REGISTRY_SIZE must be greater than 0
  * within FreeRTOSConfig.h for the registry to be available.  Its value
  * does not effect the number of queues, semaphores and mutexes that can be
  * created - just the number that the registry can hold.
@@ -1517,7 +1517,7 @@ BaseType_t xQueueGiveMutexRecursive( QueueHandle_t pxMutex ) PRIVILEGED_FUNCTION
  * stores a pointer to the string - so the string must be persistent (global or
  * preferably in ROM/Flash), not on the stack.
  */
-#if CONFIG_QUEUE_REGISTRY_SIZE > 0
+#if configQUEUE_REGISTRY_SIZE > 0
 	void vQueueAddToRegistry( QueueHandle_t xQueue, const char *pcName ) PRIVILEGED_FUNCTION; /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
 #endif
 
@@ -1531,7 +1531,7 @@ BaseType_t xQueueGiveMutexRecursive( QueueHandle_t pxMutex ) PRIVILEGED_FUNCTION
  *
  * @param xQueue The handle of the queue being removed from the registry.
  */
-#if CONFIG_QUEUE_REGISTRY_SIZE > 0
+#if configQUEUE_REGISTRY_SIZE > 0
 	void vQueueUnregisterQueue( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
 #endif
 

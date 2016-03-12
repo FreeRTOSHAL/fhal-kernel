@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -74,10 +74,10 @@
 only for ports that are using the MPU. */
 #ifdef portUSING_MPU_WRAPPERS
 
-	/* MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE will be defined when this file is
+	/* MPU_WRAPPERS_INCLUDED_FROM_API_FILE will be defined when this file is
 	included from queue.c or task.c to prevent it from having an effect within
 	those files. */
-	#ifndef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+	#ifndef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 		#define xTaskGenericCreate				MPU_xTaskGenericCreate
 		#define vTaskAllocateMPURegions			MPU_vTaskAllocateMPURegions
@@ -132,7 +132,7 @@ only for ports that are using the MPU. */
 		#define vPortInitialiseBlocks			MPU_vPortInitialiseBlocks
 		#define xPortGetMinimumEverFreeHeapSize	MPU_xPortGetMinimumEverFreeHeapSize
 
-		#if CONFIG_QUEUE_REGISTRY_SIZE > 0
+		#if configQUEUE_REGISTRY_SIZE > 0
 			#define vQueueAddToRegistry				MPU_vQueueAddToRegistry
 			#define vQueueUnregisterQueue			MPU_vQueueUnregisterQueue
 		#endif
@@ -156,13 +156,13 @@ only for ports that are using the MPU. */
 		/* Remove the privileged function macro. */
 		#define PRIVILEGED_FUNCTION
 
-	#else /* MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE */
+	#else /* MPU_WRAPPERS_INCLUDED_FROM_API_FILE */
 
 		/* Ensure API functions go in the privileged execution section. */
 		#define PRIVILEGED_FUNCTION __attribute__((section("privileged_functions")))
 		#define PRIVILEGED_DATA __attribute__((section("privileged_data")))
 
-	#endif /* MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE */
+	#endif /* MPU_WRAPPERS_INCLUDED_FROM_API_FILE */
 
 #else /* portUSING_MPU_WRAPPERS */
 

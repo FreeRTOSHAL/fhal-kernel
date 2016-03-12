@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -71,7 +71,6 @@
 #include <stdlib.h>
 #include "FreeRTOS.h"
 #include "list.h"
-#include <task.h>
 
 /*-----------------------------------------------------------
  * PUBLIC LIST API documented in list.h
@@ -96,7 +95,7 @@ void vListInitialise( List_t * const pxList )
 	pxList->uxNumberOfItems = ( UBaseType_t ) 0U;
 
 	/* Write known values into the list if
-	CONFIG_USE_LIST_DATA_INTEGRITY_CHECK_BYTES is set to 1. */
+	configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES is set to 1. */
 	listSET_LIST_INTEGRITY_CHECK_1_VALUE( pxList );
 	listSET_LIST_INTEGRITY_CHECK_2_VALUE( pxList );
 }
@@ -108,7 +107,7 @@ void vListInitialiseItem( ListItem_t * const pxItem )
 	pxItem->pvContainer = NULL;
 
 	/* Write known values into the list item if
-	CONFIG_USE_LIST_DATA_INTEGRITY_CHECK_BYTES is set to 1. */
+	configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES is set to 1. */
 	listSET_FIRST_LIST_ITEM_INTEGRITY_CHECK_VALUE( pxItem );
 	listSET_SECOND_LIST_ITEM_INTEGRITY_CHECK_VALUE( pxItem );
 }
@@ -118,9 +117,9 @@ void vListInsertEnd( List_t * const pxList, ListItem_t * const pxNewListItem )
 {
 ListItem_t * const pxIndex = pxList->pxIndex;
 
-	/* Only effective when CONFIG_ASSERT() is also defined, these tests may catch
+	/* Only effective when configASSERT() is also defined, these tests may catch
 	the list data structures being overwritten in memory.  They will not catch
-	data errors caused by incorrect CONFIG_uration or use of FreeRTOS. */
+	data errors caused by incorrect configuration or use of FreeRTOS. */
 	listTEST_LIST_INTEGRITY( pxList );
 	listTEST_LIST_ITEM_INTEGRITY( pxNewListItem );
 
@@ -148,9 +147,9 @@ void vListInsert( List_t * const pxList, ListItem_t * const pxNewListItem )
 ListItem_t *pxIterator;
 const TickType_t xValueOfInsertion = pxNewListItem->xItemValue;
 
-	/* Only effective when CONFIG_ASSERT() is also defined, these tests may catch
+	/* Only effective when configASSERT() is also defined, these tests may catch
 	the list data structures being overwritten in memory.  They will not catch
-	data errors caused by incorrect CONFIG_uration or use of FreeRTOS. */
+	data errors caused by incorrect configuration or use of FreeRTOS. */
 	listTEST_LIST_INTEGRITY( pxList );
 	listTEST_LIST_ITEM_INTEGRITY( pxNewListItem );
 
@@ -171,8 +170,8 @@ const TickType_t xValueOfInsertion = pxNewListItem->xItemValue;
 		/* *** NOTE ***********************************************************
 		If you find your application is crashing here then likely causes are
 		listed below.  In addition see http://www.freertos.org/FAQHelp.html for
-		more tips, and ensure CONFIG_ASSERT() is defined!
-		http://www.freertos.org/a00110.html#CONFIG_ASSERT
+		more tips, and ensure configASSERT() is defined!
+		http://www.freertos.org/a00110.html#configASSERT
 
 			1) Stack overflow -
 			   see http://www.freertos.org/Stacks-and-stack-overflow-checking.html
@@ -180,7 +179,7 @@ const TickType_t xValueOfInsertion = pxNewListItem->xItemValue;
 			   parts where numerically high priority values denote low actual
 			   interrupt priorities, which can seem counter intuitive.  See
 			   http://www.freertos.org/RTOS-Cortex-M3-M4.html and the definition
-			   of CONFIG_MAX_SYSCALL_INTERRUPT_PRIORITY on
+			   of configMAX_SYSCALL_INTERRUPT_PRIORITY on
 			   http://www.freertos.org/a00110.html
 			3) Calling an API function from within a critical section or when
 			   the scheduler is suspended, or calling an API function that does

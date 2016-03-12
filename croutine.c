@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -72,7 +72,7 @@
 #include "croutine.h"
 
 /* Remove the whole file is co-routines are not being used. */
-#if( CONFIG_USE_CO_ROUTINES != 0 )
+#if( configUSE_CO_ROUTINES != 0 )
 
 /*
  * Some kernel aware debuggers require data to be viewed to be global, rather
@@ -84,7 +84,7 @@
 
 
 /* Lists for ready and blocked co-routines. --------------------*/
-static List_t pxReadyCoRoutineLists[ CONFIG_MAX_CO_ROUTINE_PRIORITIES ];	/*< Prioritised ready co-routines. */
+static List_t pxReadyCoRoutineLists[ configMAX_CO_ROUTINE_PRIORITIES ];	/*< Prioritised ready co-routines. */
 static List_t xDelayedCoRoutineList1;									/*< Delayed co-routines. */
 static List_t xDelayedCoRoutineList2;									/*< Delayed co-routines (two lists are used - one for delays that have overflowed the current tick count. */
 static List_t * pxDelayedCoRoutineList;									/*< Points to the delayed co-routine list currently being used. */
@@ -159,9 +159,9 @@ CRCB_t *pxCoRoutine;
 		}
 
 		/* Check the priority is within limits. */
-		if( uxPriority >= CONFIG_MAX_CO_ROUTINE_PRIORITIES )
+		if( uxPriority >= configMAX_CO_ROUTINE_PRIORITIES )
 		{
-			uxPriority = CONFIG_MAX_CO_ROUTINE_PRIORITIES - 1;
+			uxPriority = configMAX_CO_ROUTINE_PRIORITIES - 1;
 		}
 
 		/* Fill out the co-routine control block from the function parameters. */
@@ -181,7 +181,7 @@ CRCB_t *pxCoRoutine;
 		listSET_LIST_ITEM_OWNER( &( pxCoRoutine->xEventListItem ), pxCoRoutine );
 
 		/* Event lists are always in priority order. */
-		listSET_LIST_ITEM_VALUE( &( pxCoRoutine->xEventListItem ), ( ( TickType_t ) CONFIG_MAX_CO_ROUTINE_PRIORITIES - ( TickType_t ) uxPriority ) );
+		listSET_LIST_ITEM_VALUE( &( pxCoRoutine->xEventListItem ), ( ( TickType_t ) configMAX_CO_ROUTINE_PRIORITIES - ( TickType_t ) uxPriority ) );
 
 		/* Now the co-routine has been initialised it can be added to the ready
 		list at the correct priority. */
@@ -351,7 +351,7 @@ static void prvInitialiseCoRoutineLists( void )
 {
 UBaseType_t uxPriority;
 
-	for( uxPriority = 0; uxPriority < CONFIG_MAX_CO_ROUTINE_PRIORITIES; uxPriority++ )
+	for( uxPriority = 0; uxPriority < configMAX_CO_ROUTINE_PRIORITIES; uxPriority++ )
 	{
 		vListInitialise( ( List_t * ) &( pxReadyCoRoutineLists[ uxPriority ] ) );
 	}
@@ -391,5 +391,5 @@ BaseType_t xReturn;
 	return xReturn;
 }
 
-#endif /* CONFIG_USE_CO_ROUTINES == 0 */
+#endif /* configUSE_CO_ROUTINES == 0 */
 

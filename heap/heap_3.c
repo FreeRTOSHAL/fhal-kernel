@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -72,7 +72,7 @@
  * Implementation of pvPortMalloc() and vPortFree() that relies on the
  * compilers own malloc() and free() implementations.
  *
- * This file can only be used if the linker is CONFIG_ured to to generate
+ * This file can only be used if the linker is configured to to generate
  * a heap memory area.
  *
  * See heap_1.c, heap_2.c and heap_4.c for alternative implementations, and the
@@ -81,15 +81,15 @@
 
 #include <stdlib.h>
 
-/* Defining MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE prevents task.h from redefining
+/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
 task.h is included from an application file. */
-#define MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#undef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 /*-----------------------------------------------------------*/
 
@@ -104,7 +104,7 @@ void *pvReturn;
 	}
 	( void ) xTaskResumeAll();
 
-	#if( CONFIG_USE_MALLOC_FAILED_HOOK == 1 )
+	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
 	{
 		if( pvReturn == NULL )
 		{

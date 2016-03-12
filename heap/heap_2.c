@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -78,18 +78,18 @@
  */
 #include <stdlib.h>
 
-/* Defining MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE prevents task.h from redefining
+/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
 task.h is included from an application file. */
-#define MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#undef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 /* A few bytes might be lost to byte aligning the heap start address. */
-#define CONFIG_ADJUSTED_HEAP_SIZE	( CONFIG_TOTAL_HEAP_SIZE - portBYTE_ALIGNMENT )
+#define configADJUSTED_HEAP_SIZE	( configTOTAL_HEAP_SIZE - portBYTE_ALIGNMENT )
 
 /*
  * Initialises the heap structures before their first use.
@@ -97,7 +97,7 @@ task.h is included from an application file. */
 static void prvHeapInit( void );
 
 /* Allocate the memory for the heap. */
-static uint8_t ucHeap[ CONFIG_TOTAL_HEAP_SIZE ];
+static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 
 /* Define the linked list structure.  This is used to link free blocks in order
 of their size. */
@@ -116,7 +116,7 @@ static BlockLink_t xStart, xEnd;
 
 /* Keeps track of the number of free bytes remaining, but says nothing about
 fragmentation. */
-static size_t xFreeBytesRemaining = CONFIG_ADJUSTED_HEAP_SIZE;
+static size_t xFreeBytesRemaining = configADJUSTED_HEAP_SIZE;
 
 /* STATIC FUNCTIONS ARE DEFINED AS MACROS TO MINIMIZE THE FUNCTION CALL DEPTH. */
 
@@ -176,7 +176,7 @@ void *pvReturn = NULL;
 			}
 		}
 
-		if( ( xWantedSize > 0 ) && ( xWantedSize < CONFIG_ADJUSTED_HEAP_SIZE ) )
+		if( ( xWantedSize > 0 ) && ( xWantedSize < configADJUSTED_HEAP_SIZE ) )
 		{
 			/* Blocks are stored in byte order - traverse the list from the start
 			(smallest) block until one of adequate size is found. */
@@ -224,7 +224,7 @@ void *pvReturn = NULL;
 	}
 	( void ) xTaskResumeAll();
 
-	#if( CONFIG_USE_MALLOC_FAILED_HOOK == 1 )
+	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
 	{
 		if( pvReturn == NULL )
 		{
@@ -291,13 +291,13 @@ uint8_t *pucAlignedHeap;
 	xStart.xBlockSize = ( size_t ) 0;
 
 	/* xEnd is used to mark the end of the list of free blocks. */
-	xEnd.xBlockSize = CONFIG_ADJUSTED_HEAP_SIZE;
+	xEnd.xBlockSize = configADJUSTED_HEAP_SIZE;
 	xEnd.pxNextFreeBlock = NULL;
 
 	/* To start with there is a single free block that is sized to take up the
 	entire heap space. */
 	pxFirstFreeBlock = ( void * ) pucAlignedHeap;
-	pxFirstFreeBlock->xBlockSize = CONFIG_ADJUSTED_HEAP_SIZE;
+	pxFirstFreeBlock->xBlockSize = configADJUSTED_HEAP_SIZE;
 	pxFirstFreeBlock->pxNextFreeBlock = &xEnd;
 }
 /*-----------------------------------------------------------*/

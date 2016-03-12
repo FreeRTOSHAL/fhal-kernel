@@ -81,7 +81,7 @@ menu "Basic Settings"
 			heap_2.c is suitable for most small real time systems that have to dynamically create tasks.
 	config HEAP_3
 		bool "Heap 3"
-		depends on NEWLIB_MALLOC
+		depends on MACH_HAS_MALLOC || NEWLIB_MALLOC
 		help 
 			This implements a simple wrapper for the standard C library malloc() and free() functions that will, in most cases, be 
 			supplied with your chosen compiler. The wrapper simply makes the malloc() and free() functions thread safe.
@@ -211,7 +211,9 @@ menu "Basic Settings"
 			when a 16bit counter is used is 262 seconds, compared to 17179869 seconds when using a 32bit counter.
 
 	comment "Warning the most architecture do not support tick rate garter then 1000Hz"
+		depends on TICK_RATE_HZ > 1000
 	comment "Warning tick rate grater then 1000Hz can make the system unstable"
+		depends on TICK_RATE_HZ > 1000
 	config TICK_RATE_HZ
 		int "Scheduler Tick Rate(Hz)"
 		default 1000
@@ -433,6 +435,7 @@ menu "Task Setting"
 			Set to y if you want use Task Tags. Used by Trace Hook Macros
 	config USE_NEWLIB_REENTRANT
 		bool "Use Newlib reentrat"
+		depends on NEWLIB
 		help
 			If configUSE_NEWLIB_REENTRANT is set to 1 then a newlib reent structure will be allocated for each created task.
 			Note Newlib support has been included by popular demand, but is not used by the FreeRTOS maintainers themselves. 

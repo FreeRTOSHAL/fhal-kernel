@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -77,21 +77,21 @@
  */
 #include <stdlib.h>
 
-/* Defining MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE prevents task.h from redefining
+/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
 task.h is included from an application file. */
-#define MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#undef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 /* A few bytes might be lost to byte aligning the heap start address. */
-#define CONFIG_ADJUSTED_HEAP_SIZE	( CONFIG_TOTAL_HEAP_SIZE - portBYTE_ALIGNMENT )
+#define configADJUSTED_HEAP_SIZE	( configTOTAL_HEAP_SIZE - portBYTE_ALIGNMENT )
 
 /* Allocate the memory for the heap. */
-static uint8_t ucHeap[ CONFIG_TOTAL_HEAP_SIZE ];
+static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 static size_t xNextFreeByte = ( size_t ) 0;
 
 /*-----------------------------------------------------------*/
@@ -119,7 +119,7 @@ static uint8_t *pucAlignedHeap = NULL;
 		}
 
 		/* Check there is enough room left for the allocation. */
-		if( ( ( xNextFreeByte + xWantedSize ) < CONFIG_ADJUSTED_HEAP_SIZE ) &&
+		if( ( ( xNextFreeByte + xWantedSize ) < configADJUSTED_HEAP_SIZE ) &&
 			( ( xNextFreeByte + xWantedSize ) > xNextFreeByte )	)/* Check for overflow. */
 		{
 			/* Return the next free byte then increment the index past this
@@ -132,7 +132,7 @@ static uint8_t *pucAlignedHeap = NULL;
 	}
 	( void ) xTaskResumeAll();
 
-	#if( CONFIG_USE_MALLOC_FAILED_HOOK == 1 )
+	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
 	{
 		if( pvReturn == NULL )
 		{
@@ -154,7 +154,7 @@ void vPortFree( void *pv )
 	( void ) pv;
 
 	/* Force an assert as it is invalid to call this function. */
-	CONFIG_ASSERT( pv == NULL );
+	configASSERT( pv == NULL );
 }
 /*-----------------------------------------------------------*/
 
@@ -167,7 +167,7 @@ void vPortInitialiseBlocks( void )
 
 size_t xPortGetFreeHeapSize( void )
 {
-	return ( CONFIG_ADJUSTED_HEAP_SIZE - xNextFreeByte );
+	return ( configADJUSTED_HEAP_SIZE - xNextFreeByte );
 }
 
 

@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -94,7 +94,7 @@
 extern "C" {
 #endif
 
-/* Application specific CONFIG_uration options. */
+/* Application specific configuration options. */
 #include "FreeRTOSConfig.h"
 
 /* Basic FreeRTOS definitions. */
@@ -109,182 +109,182 @@ extern "C" {
  * within FreeRTOSConfig.h.
  */
 
-#ifndef CONFIG_MINIMAL_STACK_SIZE
-	#error Missing definition:  CONFIG_MINIMAL_STACK_SIZE must be defined in FreeRTOSConfig.h.  CONFIG_MINIMAL_STACK_SIZE defines the size (in words) of the stack allocated to the idle task.  Refer to the demo project provided for your port for a suitable value.
+#ifndef configMINIMAL_STACK_SIZE
+	#error Missing definition:  configMINIMAL_STACK_SIZE must be defined in FreeRTOSConfig.h.  configMINIMAL_STACK_SIZE defines the size (in words) of the stack allocated to the idle task.  Refer to the demo project provided for your port for a suitable value.
 #endif
 
-#ifndef CONFIG_MAX_PRIORITIES
-	#error Missing definition:  CONFIG_MAX_PRIORITIES must be defined in FreeRTOSConfig.h.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef configMAX_PRIORITIES
+	#error Missing definition:  configMAX_PRIORITIES must be defined in FreeRTOSConfig.h.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_USE_PREEMPTION
-	#error Missing definition:  CONFIG_USE_PREEMPTION must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef configUSE_PREEMPTION
+	#error Missing definition:  configUSE_PREEMPTION must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_USE_IDLE_HOOK
-	#error Missing definition:  CONFIG_USE_IDLE_HOOK must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef configUSE_IDLE_HOOK
+	#error Missing definition:  configUSE_IDLE_HOOK must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_USE_TICK_HOOK
-	#error Missing definition:  CONFIG_USE_TICK_HOOK must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef configUSE_TICK_HOOK
+	#error Missing definition:  configUSE_TICK_HOOK must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_INCLUDE_vTaskPrioritySet
-	#error Missing definition:  CONFIG_INCLUDE_vTaskPrioritySet must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef INCLUDE_vTaskPrioritySet
+	#error Missing definition:  INCLUDE_vTaskPrioritySet must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_INCLUDE_uxTaskPriorityGet
-	#error Missing definition:  CONFIG_INCLUDE_uxTaskPriorityGet must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef INCLUDE_uxTaskPriorityGet
+	#error Missing definition:  INCLUDE_uxTaskPriorityGet must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_INCLUDE_vTaskDelete
-	#error Missing definition:  CONFIG_INCLUDE_vTaskDelete must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef INCLUDE_vTaskDelete
+	#error Missing definition:  INCLUDE_vTaskDelete must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_INCLUDE_vTaskSuspend
-	#error Missing definition:  CONFIG_INCLUDE_vTaskSuspend must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef INCLUDE_vTaskSuspend
+	#error Missing definition:  INCLUDE_vTaskSuspend must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_INCLUDE_vTaskDelayUntil
-	#error Missing definition:  CONFIG_INCLUDE_vTaskDelayUntil must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef INCLUDE_vTaskDelayUntil
+	#error Missing definition:  INCLUDE_vTaskDelayUntil must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_INCLUDE_vTaskDelay
-	#error Missing definition:  CONFIG_INCLUDE_vTaskDelay must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef INCLUDE_vTaskDelay
+	#error Missing definition:  INCLUDE_vTaskDelay must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_USE_16_BIT_TICKS
-	#error Missing definition:  CONFIG_USE_16_BIT_TICKS must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
+#ifndef configUSE_16_BIT_TICKS
+	#error Missing definition:  configUSE_16_BIT_TICKS must be defined in FreeRTOSConfig.h as either 1 or 0.  See the Configuration section of the FreeRTOS API documentation for details.
 #endif
 
-#ifndef CONFIG_MAX_PRIORITIES
-	#error CONFIG_MAX_PRIORITIES must be defined to be greater than or equal to 1.
+#ifndef configMAX_PRIORITIES
+	#error configMAX_PRIORITIES must be defined to be greater than or equal to 1.
 #endif
 
-#ifndef CONFIG_USE_CO_ROUTINES
-	#define CONFIG_USE_CO_ROUTINES 0
+#ifndef configUSE_CO_ROUTINES
+	#define configUSE_CO_ROUTINES 0
 #endif
 
-#if CONFIG_USE_CO_ROUTINES != 0
-	#ifndef CONFIG_MAX_CO_ROUTINE_PRIORITIES
-		#error CONFIG_MAX_CO_ROUTINE_PRIORITIES must be greater than or equal to 1.
+#if configUSE_CO_ROUTINES != 0
+	#ifndef configMAX_CO_ROUTINE_PRIORITIES
+		#error configMAX_CO_ROUTINE_PRIORITIES must be greater than or equal to 1.
 	#endif
 #endif
 
-#ifndef CONFIG_INCLUDE_xTaskGetIdleTaskHandle
-	#define CONFIG_INCLUDE_xTaskGetIdleTaskHandle 0
+#ifndef INCLUDE_xTaskGetIdleTaskHandle
+	#define INCLUDE_xTaskGetIdleTaskHandle 0
 #endif
 
-#ifndef CONFIG_INCLUDE_xTimerGetTimerDaemonTaskHandle
-	#define CONFIG_INCLUDE_xTimerGetTimerDaemonTaskHandle 0
+#ifndef INCLUDE_xTimerGetTimerDaemonTaskHandle
+	#define INCLUDE_xTimerGetTimerDaemonTaskHandle 0
 #endif
 
-#ifndef CONFIG_INCLUDE_xQueueGetMutexHolder
-	#define CONFIG_INCLUDE_xQueueGetMutexHolder 0
+#ifndef INCLUDE_xQueueGetMutexHolder
+	#define INCLUDE_xQueueGetMutexHolder 0
 #endif
 
-#ifndef CONFIG_INCLUDE_xSemaphoreGetMutexHolder
-	#define CONFIG_INCLUDE_xSemaphoreGetMutexHolder CONFIG_INCLUDE_xQueueGetMutexHolder
+#ifndef INCLUDE_xSemaphoreGetMutexHolder
+	#define INCLUDE_xSemaphoreGetMutexHolder INCLUDE_xQueueGetMutexHolder
 #endif
 
-#ifndef CONFIG_INCLUDE_pcTaskGetTaskName
-	#define CONFIG_INCLUDE_pcTaskGetTaskName 0
+#ifndef INCLUDE_pcTaskGetTaskName
+	#define INCLUDE_pcTaskGetTaskName 0
 #endif
 
-#ifndef CONFIG_USE_APPLICATION_TASK_TAG
-	#define CONFIG_USE_APPLICATION_TASK_TAG 0
+#ifndef configUSE_APPLICATION_TASK_TAG
+	#define configUSE_APPLICATION_TASK_TAG 0
 #endif
 
-#ifndef CONFIG_NUM_THREAD_LOCAL_STORAGE_POINTERS
-	#define CONFIG_NUM_THREAD_LOCAL_STORAGE_POINTERS 0
+#ifndef configNUM_THREAD_LOCAL_STORAGE_POINTERS
+	#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 0
 #endif
 
-#ifndef CONFIG_INCLUDE_uxTaskGetStackHighWaterMark
-	#define CONFIG_INCLUDE_uxTaskGetStackHighWaterMark 0
+#ifndef INCLUDE_uxTaskGetStackHighWaterMark
+	#define INCLUDE_uxTaskGetStackHighWaterMark 0
 #endif
 
-#ifndef CONFIG_INCLUDE_eTaskGetState
-	#define CONFIG_INCLUDE_eTaskGetState 0
+#ifndef INCLUDE_eTaskGetState
+	#define INCLUDE_eTaskGetState 0
 #endif
 
-#ifndef CONFIG_USE_RECURSIVE_MUTEXES
-	#define CONFIG_USE_RECURSIVE_MUTEXES 0
+#ifndef configUSE_RECURSIVE_MUTEXES
+	#define configUSE_RECURSIVE_MUTEXES 0
 #endif
 
-#ifndef CONFIG_USE_MUTEXES
-	#define CONFIG_USE_MUTEXES 0
+#ifndef configUSE_MUTEXES
+	#define configUSE_MUTEXES 0
 #endif
 
-#ifndef CONFIG_USE_TIMERS
-	#define CONFIG_USE_TIMERS 0
+#ifndef configUSE_TIMERS
+	#define configUSE_TIMERS 0
 #endif
 
-#ifndef CONFIG_USE_COUNTING_SEMAPHORES
-	#define CONFIG_USE_COUNTING_SEMAPHORES 0
+#ifndef configUSE_COUNTING_SEMAPHORES
+	#define configUSE_COUNTING_SEMAPHORES 0
 #endif
 
-#ifndef CONFIG_USE_ALTERNATIVE_API
-	#define CONFIG_USE_ALTERNATIVE_API 0
+#ifndef configUSE_ALTERNATIVE_API
+	#define configUSE_ALTERNATIVE_API 0
 #endif
 
 #ifndef portCRITICAL_NESTING_IN_TCB
 	#define portCRITICAL_NESTING_IN_TCB 0
 #endif
 
-#ifndef CONFIG_MAX_TASK_NAME_LEN
-	#define CONFIG_MAX_TASK_NAME_LEN 16
+#ifndef configMAX_TASK_NAME_LEN
+	#define configMAX_TASK_NAME_LEN 16
 #endif
 
-#ifndef CONFIG_IDLE_SHOULD_YIELD
-	#define CONFIG_IDLE_SHOULD_YIELD		1
+#ifndef configIDLE_SHOULD_YIELD
+	#define configIDLE_SHOULD_YIELD		1
 #endif
 
-#if CONFIG_MAX_TASK_NAME_LEN < 1
-	#error CONFIG_MAX_TASK_NAME_LEN must be set to a minimum of 1 in FreeRTOSConfig.h
+#if configMAX_TASK_NAME_LEN < 1
+	#error configMAX_TASK_NAME_LEN must be set to a minimum of 1 in FreeRTOSConfig.h
 #endif
 
-#ifndef CONFIG_INCLUDE_xTaskResumeFromISR
-	#define CONFIG_INCLUDE_xTaskResumeFromISR 1
+#ifndef INCLUDE_xTaskResumeFromISR
+	#define INCLUDE_xTaskResumeFromISR 1
 #endif
 
-#ifndef CONFIG_INCLUDE_xEventGroupSetBitFromISR
-	#define CONFIG_INCLUDE_xEventGroupSetBitFromISR 0
+#ifndef INCLUDE_xEventGroupSetBitFromISR
+	#define INCLUDE_xEventGroupSetBitFromISR 0
 #endif
 
-#ifndef CONFIG_INCLUDE_xTimerPendFunctionCall
-	#define CONFIG_INCLUDE_xTimerPendFunctionCall 0
+#ifndef INCLUDE_xTimerPendFunctionCall
+	#define INCLUDE_xTimerPendFunctionCall 0
 #endif
 
-#ifndef CONFIG_ASSERT
-	#define CONFIG_ASSERT( x )
-	#define CONFIG_ASSERT_DEFINED 0
+#ifndef configASSERT
+	#define configASSERT( x )
+	#define configASSERT_DEFINED 0
 #else
-	#define CONFIG_ASSERT_DEFINED 1
+	#define configASSERT_DEFINED 1
 #endif
 
 /* The timers module relies on xTaskGetSchedulerState(). */
-#if CONFIG_USE_TIMERS == 1
+#if configUSE_TIMERS == 1
 
-	#ifndef CONFIG_TIMER_TASK_PRIORITY
-		#error If CONFIG_USE_TIMERS is set to 1 then CONFIG_TIMER_TASK_PRIORITY must also be defined.
-	#endif /* CONFIG_TIMER_TASK_PRIORITY */
+	#ifndef configTIMER_TASK_PRIORITY
+		#error If configUSE_TIMERS is set to 1 then configTIMER_TASK_PRIORITY must also be defined.
+	#endif /* configTIMER_TASK_PRIORITY */
 
-	#ifndef CONFIG_TIMER_QUEUE_LENGTH
-		#error If CONFIG_USE_TIMERS is set to 1 then CONFIG_TIMER_QUEUE_LENGTH must also be defined.
-	#endif /* CONFIG_TIMER_QUEUE_LENGTH */
+	#ifndef configTIMER_QUEUE_LENGTH
+		#error If configUSE_TIMERS is set to 1 then configTIMER_QUEUE_LENGTH must also be defined.
+	#endif /* configTIMER_QUEUE_LENGTH */
 
-	#ifndef CONFIG_TIMER_TASK_STACK_DEPTH
-		#error If CONFIG_USE_TIMERS is set to 1 then CONFIG_TIMER_TASK_STACK_DEPTH must also be defined.
-	#endif /* CONFIG_TIMER_TASK_STACK_DEPTH */
+	#ifndef configTIMER_TASK_STACK_DEPTH
+		#error If configUSE_TIMERS is set to 1 then configTIMER_TASK_STACK_DEPTH must also be defined.
+	#endif /* configTIMER_TASK_STACK_DEPTH */
 
-#endif /* CONFIG_USE_TIMERS */
+#endif /* configUSE_TIMERS */
 
-#ifndef CONFIG_INCLUDE_xTaskGetSchedulerState
-	#define CONFIG_INCLUDE_xTaskGetSchedulerState 0
+#ifndef INCLUDE_xTaskGetSchedulerState
+	#define INCLUDE_xTaskGetSchedulerState 0
 #endif
 
-#ifndef CONFIG_INCLUDE_xTaskGetCurrentTaskHandle
-	#define CONFIG_INCLUDE_xTaskGetCurrentTaskHandle 0
+#ifndef INCLUDE_xTaskGetCurrentTaskHandle
+	#define INCLUDE_xTaskGetCurrentTaskHandle 0
 #endif
 
 
@@ -308,11 +308,11 @@ extern "C" {
 	#define portSETUP_TCB( pxTCB ) ( void ) pxTCB
 #endif
 
-#ifndef CONFIG_QUEUE_REGISTRY_SIZE
-	#define CONFIG_QUEUE_REGISTRY_SIZE 0U
+#ifndef configQUEUE_REGISTRY_SIZE
+	#define configQUEUE_REGISTRY_SIZE 0U
 #endif
 
-#if ( CONFIG_QUEUE_REGISTRY_SIZE < 1 )
+#if ( configQUEUE_REGISTRY_SIZE < 1 )
 	#define vQueueAddToRegistry( xQueue, pcName )
 	#define vQueueUnregisterQueue( xQueue )
 #endif
@@ -375,7 +375,7 @@ extern "C" {
 	/* Called when a task releases a mutex, the holding of which had resulted in
 	the task inheriting the priority of a higher priority task.
 	pxTCBOfMutexHolder is a pointer to the TCB of the task that is releasing the
-	mutex.  uxOriginalPriority is the task's CONFIG_ured (base) priority. */
+	mutex.  uxOriginalPriority is the task's configured (base) priority. */
 	#define traceTASK_PRIORITY_DISINHERIT( pxTCBOfMutexHolder, uxOriginalPriority )
 #endif
 
@@ -395,8 +395,8 @@ extern "C" {
 	#define traceBLOCKING_ON_QUEUE_SEND( pxQueue )
 #endif
 
-#ifndef CONFIG_CHECK_FOR_STACK_OVERFLOW
-	#define CONFIG_CHECK_FOR_STACK_OVERFLOW 0
+#ifndef configCHECK_FOR_STACK_OVERFLOW
+	#define configCHECK_FOR_STACK_OVERFLOW 0
 #endif
 
 /* The following event macros are embedded in the kernel API calls. */
@@ -645,30 +645,30 @@ extern "C" {
 	#define traceTASK_NOTIFY_GIVE_FROM_ISR()
 #endif
 
-#ifndef CONFIG_GENERATE_RUN_TIME_STATS
-	#define CONFIG_GENERATE_RUN_TIME_STATS 0
+#ifndef configGENERATE_RUN_TIME_STATS
+	#define configGENERATE_RUN_TIME_STATS 0
 #endif
 
-#if ( CONFIG_GENERATE_RUN_TIME_STATS == 1 )
+#if ( configGENERATE_RUN_TIME_STATS == 1 )
 
 	#ifndef portCONFIGURE_TIMER_FOR_RUN_TIME_STATS
-		#error If CONFIG_GENERATE_RUN_TIME_STATS is defined then portCONFIGURE_TIMER_FOR_RUN_TIME_STATS must also be defined.  portCONFIGURE_TIMER_FOR_RUN_TIME_STATS should call a port layer function to setup a peripheral timer/counter that can then be used as the run time counter time base.
+		#error If configGENERATE_RUN_TIME_STATS is defined then portCONFIGURE_TIMER_FOR_RUN_TIME_STATS must also be defined.  portCONFIGURE_TIMER_FOR_RUN_TIME_STATS should call a port layer function to setup a peripheral timer/counter that can then be used as the run time counter time base.
 	#endif /* portCONFIGURE_TIMER_FOR_RUN_TIME_STATS */
 
 	#ifndef portGET_RUN_TIME_COUNTER_VALUE
 		#ifndef portALT_GET_RUN_TIME_COUNTER_VALUE
-			#error If CONFIG_GENERATE_RUN_TIME_STATS is defined then either portGET_RUN_TIME_COUNTER_VALUE or portALT_GET_RUN_TIME_COUNTER_VALUE must also be defined.  See the examples provided and the FreeRTOS web site for more information.
+			#error If configGENERATE_RUN_TIME_STATS is defined then either portGET_RUN_TIME_COUNTER_VALUE or portALT_GET_RUN_TIME_COUNTER_VALUE must also be defined.  See the examples provided and the FreeRTOS web site for more information.
 		#endif /* portALT_GET_RUN_TIME_COUNTER_VALUE */
 	#endif /* portGET_RUN_TIME_COUNTER_VALUE */
 
-#endif /* CONFIG_GENERATE_RUN_TIME_STATS */
+#endif /* configGENERATE_RUN_TIME_STATS */
 
 #ifndef portCONFIGURE_TIMER_FOR_RUN_TIME_STATS
 	#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
 #endif
 
-#ifndef CONFIG_USE_MALLOC_FAILED_HOOK
-	#define CONFIG_USE_MALLOC_FAILED_HOOK 0
+#ifndef configUSE_MALLOC_FAILED_HOOK
+	#define configUSE_MALLOC_FAILED_HOOK 0
 #endif
 
 #ifndef portPRIVILEGE_BIT
@@ -691,56 +691,56 @@ extern "C" {
 	#define portSUPPRESS_TICKS_AND_SLEEP( xExpectedIdleTime )
 #endif
 
-#ifndef CONFIG_EXPECTED_IDLE_TIME_BEFORE_SLEEP
-	#define CONFIG_EXPECTED_IDLE_TIME_BEFORE_SLEEP 2
+#ifndef configEXPECTED_IDLE_TIME_BEFORE_SLEEP
+	#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP 2
 #endif
 
-#if CONFIG_EXPECTED_IDLE_TIME_BEFORE_SLEEP < 2
-	#error CONFIG_EXPECTED_IDLE_TIME_BEFORE_SLEEP must not be less than 2
+#if configEXPECTED_IDLE_TIME_BEFORE_SLEEP < 2
+	#error configEXPECTED_IDLE_TIME_BEFORE_SLEEP must not be less than 2
 #endif
 
-#ifndef CONFIG_USE_TICKLESS_IDLE
-	#define CONFIG_USE_TICKLESS_IDLE 0
+#ifndef configUSE_TICKLESS_IDLE
+	#define configUSE_TICKLESS_IDLE 0
 #endif
 
-#ifndef CONFIG_PRE_SLEEP_PROCESSING
-	#define CONFIG_PRE_SLEEP_PROCESSING( x )
+#ifndef configPRE_SLEEP_PROCESSING
+	#define configPRE_SLEEP_PROCESSING( x )
 #endif
 
-#ifndef CONFIG_POST_SLEEP_PROCESSING
-	#define CONFIG_POST_SLEEP_PROCESSING( x )
+#ifndef configPOST_SLEEP_PROCESSING
+	#define configPOST_SLEEP_PROCESSING( x )
 #endif
 
-#ifndef CONFIG_USE_QUEUE_SETS
-	#define CONFIG_USE_QUEUE_SETS 0
+#ifndef configUSE_QUEUE_SETS
+	#define configUSE_QUEUE_SETS 0
 #endif
 
 #ifndef portTASK_USES_FLOATING_POINT
 	#define portTASK_USES_FLOATING_POINT()
 #endif
 
-#ifndef CONFIG_USE_TIME_SLICING
-	#define CONFIG_USE_TIME_SLICING 1
+#ifndef configUSE_TIME_SLICING
+	#define configUSE_TIME_SLICING 1
 #endif
 
-#ifndef CONFIG_CONFIG_INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS
-	#define CONFIG_CONFIG_INCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS 0
+#ifndef configINCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS
+	#define configINCLUDE_APPLICATION_DEFINED_PRIVILEGED_FUNCTIONS 0
 #endif
 
-#ifndef CONFIG_USE_NEWLIB_REENTRANT
-	#define CONFIG_USE_NEWLIB_REENTRANT 0
+#ifndef configUSE_NEWLIB_REENTRANT
+	#define configUSE_NEWLIB_REENTRANT 0
 #endif
 
-#ifndef CONFIG_USE_STATS_FORMATTING_FUNCTIONS
-	#define CONFIG_USE_STATS_FORMATTING_FUNCTIONS 0
+#ifndef configUSE_STATS_FORMATTING_FUNCTIONS
+	#define configUSE_STATS_FORMATTING_FUNCTIONS 0
 #endif
 
 #ifndef portASSERT_IF_INTERRUPT_PRIORITY_INVALID
 	#define portASSERT_IF_INTERRUPT_PRIORITY_INVALID()
 #endif
 
-#ifndef CONFIG_USE_TRACE_FACILITY
-	#define CONFIG_USE_TRACE_FACILITY 0
+#ifndef configUSE_TRACE_FACILITY
+	#define configUSE_TRACE_FACILITY 0
 #endif
 
 #ifndef mtCOVERAGE_TEST_MARKER
@@ -755,16 +755,16 @@ extern "C" {
 	#define portASSERT_IF_IN_ISR()
 #endif
 
-#ifndef CONFIG_USE_PORT_OPTIMISED_TASK_SELECTION
-	#define CONFIG_USE_PORT_OPTIMISED_TASK_SELECTION 0
+#ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
+	#define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
 #endif
 
-#ifndef CONFIG_APPLICATION_ALLOCATED_HEAP
-	#define CONFIG_APPLICATION_ALLOCATED_HEAP 0
+#ifndef configAPPLICATION_ALLOCATED_HEAP
+	#define configAPPLICATION_ALLOCATED_HEAP 0
 #endif
 
-#ifndef CONFIG_USE_TASK_NOTIFICATIONS
-	#define CONFIG_USE_TASK_NOTIFICATIONS 1
+#ifndef configUSE_TASK_NOTIFICATIONS
+	#define configUSE_TASK_NOTIFICATIONS 1
 #endif
 
 #ifndef portTICK_TYPE_IS_ATOMIC
@@ -790,11 +790,11 @@ extern "C" {
 
 /* Definitions to allow backward compatibility with FreeRTOS versions prior to
 V8 if desired. */
-#ifndef CONFIG_ENABLE_BACKWARD_COMPATIBILITY
-	#define CONFIG_ENABLE_BACKWARD_COMPATIBILITY 1
+#ifndef configENABLE_BACKWARD_COMPATIBILITY
+	#define configENABLE_BACKWARD_COMPATIBILITY 1
 #endif
 
-#if CONFIG_ENABLE_BACKWARD_COMPATIBILITY == 1
+#if configENABLE_BACKWARD_COMPATIBILITY == 1
 	#define eTaskStateGet eTaskGetState
 	#define portTickType TickType_t
 	#define xTaskHandle TaskHandle_t
@@ -817,14 +817,14 @@ V8 if desired. */
 	#define pdTASK_CODE TaskFunction_t
 	#define xListItem ListItem_t
 	#define xList List_t
-#endif /* CONFIG_ENABLE_BACKWARD_COMPATIBILITY */
+#endif /* configENABLE_BACKWARD_COMPATIBILITY */
 
-/* Set CONFIG_USE_TASK_FPU_SUPPORT to 0 to omit floating point support even
+/* Set configUSE_TASK_FPU_SUPPORT to 0 to omit floating point support even
 if floating point hardware is otherwise supported by the FreeRTOS port in use.
 This constant is not supported by all FreeRTOS ports that include floating 
 point support. */
-#ifndef CONFIG_USE_TASK_FPU_SUPPORT
-	#define CONFIG_USE_TASK_FPU_SUPPORT 1
+#ifndef configUSE_TASK_FPU_SUPPORT
+	#define configUSE_TASK_FPU_SUPPORT 1
 #endif
 
 #ifdef __cplusplus

@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -111,15 +111,15 @@
  */
 #include <stdlib.h>
 
-/* Defining MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE prevents task.h from redefining
+/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
 task.h is included from an application file. */
-#define MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#undef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 /* Block sizes must not get too small. */
 #define heapMINIMUM_BLOCK_SIZE	( ( size_t ) ( xHeapStructSize << 1 ) )
@@ -174,7 +174,7 @@ void *pvReturn = NULL;
 
 	/* The heap must be initialised before the first call to
 	prvPortMalloc(). */
-	CONFIG_ASSERT( pxEnd );
+	configASSERT( pxEnd );
 
 	vTaskSuspendAll();
 	{
@@ -289,7 +289,7 @@ void *pvReturn = NULL;
 	}
 	( void ) xTaskResumeAll();
 
-	#if( CONFIG_USE_MALLOC_FAILED_HOOK == 1 )
+	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
 	{
 		if( pvReturn == NULL )
 		{
@@ -322,8 +322,8 @@ BlockLink_t *pxLink;
 		pxLink = ( void * ) puc;
 
 		/* Check the block is actually allocated. */
-		CONFIG_ASSERT( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 );
-		CONFIG_ASSERT( pxLink->pxNextFreeBlock == NULL );
+		configASSERT( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 );
+		configASSERT( pxLink->pxNextFreeBlock == NULL );
 
 		if( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 )
 		{
@@ -438,7 +438,7 @@ size_t xAddress;
 const HeapRegion_t *pxHeapRegion;
 
 	/* Can only call once! */
-	CONFIG_ASSERT( pxEnd == NULL );
+	configASSERT( pxEnd == NULL );
 
 	pxHeapRegion = &( pxHeapRegions[ xDefinedRegions ] );
 
@@ -471,10 +471,10 @@ const HeapRegion_t *pxHeapRegion;
 		{
 			/* Should only get here if one region has already been added to the
 			heap. */
-			CONFIG_ASSERT( pxEnd != NULL );
+			configASSERT( pxEnd != NULL );
 
 			/* Check blocks are passed in with increasing start addresses. */
-			CONFIG_ASSERT( xAddress > ( size_t ) pxEnd );
+			configASSERT( xAddress > ( size_t ) pxEnd );
 		}
 
 		/* Remember the location of the end marker in the previous region, if
@@ -515,7 +515,7 @@ const HeapRegion_t *pxHeapRegion;
 	xFreeBytesRemaining = xTotalHeapSize;
 
 	/* Check something was actually defined before it is accessed. */
-	CONFIG_ASSERT( xTotalHeapSize );
+	configASSERT( xTotalHeapSize );
 
 	/* Work out the position of the top bit in a size_t variable. */
 	xBlockAllocatedBit = ( ( size_t ) 1 ) << ( ( sizeof( size_t ) * heapBITS_PER_BYTE ) - 1 );

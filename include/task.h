@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -170,8 +170,8 @@ typedef struct xTASK_STATUS
 	UBaseType_t xTaskNumber;		/* A number unique to the task. */
 	eTaskState eCurrentState;		/* The state in which the task existed when the structure was populated. */
 	UBaseType_t uxCurrentPriority;	/* The priority at which the task was running (may be inherited) when the structure was populated. */
-	UBaseType_t uxBasePriority;		/* The priority to which the task will return if the task's current priority has been inherited to avoid unbounded priority inversion when obtaining a mutex.  Only valid if CONFIG_USE_MUTEXES is defined as 1 in FreeRTOSConfig.h. */
-	uint32_t ulRunTimeCounter;		/* The total run time allocated to the task so far, as defined by the run time stats clock.  See http://www.freertos.org/rtos-run-time-stats.html.  Only valid when CONFIG_GENERATE_RUN_TIME_STATS is defined as 1 in FreeRTOSConfig.h. */
+	UBaseType_t uxBasePriority;		/* The priority to which the task will return if the task's current priority has been inherited to avoid unbounded priority inversion when obtaining a mutex.  Only valid if configUSE_MUTEXES is defined as 1 in FreeRTOSConfig.h. */
+	uint32_t ulRunTimeCounter;		/* The total run time allocated to the task so far, as defined by the run time stats clock.  See http://www.freertos.org/rtos-run-time-stats.html.  Only valid when configGENERATE_RUN_TIME_STATS is defined as 1 in FreeRTOSConfig.h. */
 	uint16_t usStackHighWaterMark;	/* The minimum amount of stack space that has remained for the task since the task was created.  The closer this value is to zero the closer the task has come to overflowing its stack. */
 } TaskStatus_t;
 
@@ -251,7 +251,7 @@ typedef enum
 #define taskENABLE_INTERRUPTS()		portENABLE_INTERRUPTS()
 
 /* Definitions returned by xTaskGetSchedulerState().  taskSCHEDULER_SUSPENDED is
-0 to generate more optimal code when CONFIG_ASSERT() is defined as the constant
+0 to generate more optimal code when configASSERT() is defined as the constant
 is used in assert() statements. */
 #define taskSCHEDULER_SUSPENDED		( ( BaseType_t ) 0 )
 #define taskSCHEDULER_NOT_STARTED	( ( BaseType_t ) 1 )
@@ -285,7 +285,7 @@ is used in assert() statements. */
  * must be implemented to never return (i.e. continuous loop).
  *
  * @param pcName A descriptive name for the task.  This is mainly used to
- * facilitate debugging.  Max length defined by CONFIG_MAX_TASK_NAME_LEN - default
+ * facilitate debugging.  Max length defined by configMAX_TASK_NAME_LEN - default
  * is 16.
  *
  * @param usStackDepth The size of the task stack specified as the number of
@@ -330,7 +330,7 @@ is used in assert() statements. */
 	 // an automatic stack variable it might no longer exist, or at least have been corrupted, by the time
 	 // the new task attempts to access it.
 	 xTaskCreate( vTaskCode, "NAME", STACK_SIZE, &ucParameterToPass, tskIDLE_PRIORITY, &xHandle );
-     CONFIG_ASSERT( xHandle );
+     configASSERT( xHandle );
 
 	 // Use the handle to delete the task.
      if( xHandle != NULL )
@@ -429,7 +429,7 @@ TaskHandle_t xHandle;
  *
  * Example usage:
    <pre>
-// Define an array of MemoryRegion_t structures that CONFIG_ures an MPU region
+// Define an array of MemoryRegion_t structures that configures an MPU region
 // allowing read/write access for 1024 bytes starting at the beginning of the
 // ucOneKByte array.  The other two of the maximum 3 definable regions are
 // unused so set to zero.
@@ -444,7 +444,7 @@ static const MemoryRegion_t xAltRegions[ portNUM_CONFIGURABLE_REGIONS ] =
 void vATask( void *pvParameters )
 {
 	// This task was created such that it has access to certain regions of
-	// memory as defined by the MPU CONFIG_uration.  At some point it is
+	// memory as defined by the MPU configuration.  At some point it is
 	// desired that these MPU regions are replaced with that defined in the
 	// xAltRegions const struct above.  Use a call to vTaskAllocateMPURegions()
 	// for this purpose.  NULL is used as the task handle to indicate that this
@@ -465,8 +465,8 @@ void vTaskAllocateMPURegions( TaskHandle_t xTask, const MemoryRegion_t * const p
  * task. h
  * <pre>void vTaskDelete( TaskHandle_t xTask );</pre>
  *
- * CONFIG_INCLUDE_vTaskDelete must be defined as 1 for this function to be available.
- * See the CONFIG_uration section for more information.
+ * INCLUDE_vTaskDelete must be defined as 1 for this function to be available.
+ * See the configuration section for more information.
  *
  * Remove a task from the RTOS real time kernel's management.  The task being
  * deleted will be removed from all ready, blocked, suspended and event lists.
@@ -515,8 +515,8 @@ void vTaskDelete( TaskHandle_t xTaskToDelete ) PRIVILEGED_FUNCTION;
  * portTICK_PERIOD_MS can be used to calculate real time from the tick
  * rate - with the resolution of one tick period.
  *
- * CONFIG_INCLUDE_vTaskDelay must be defined as 1 for this function to be available.
- * See the CONFIG_uration section for more information.
+ * INCLUDE_vTaskDelay must be defined as 1 for this function to be available.
+ * See the configuration section for more information.
  *
  *
  * vTaskDelay() specifies a time at which the task wishes to unblock relative to
@@ -558,8 +558,8 @@ void vTaskDelay( const TickType_t xTicksToDelay ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>void vTaskDelayUntil( TickType_t *pxPreviousWakeTime, const TickType_t xTimeIncrement );</pre>
  *
- * CONFIG_INCLUDE_vTaskDelayUntil must be defined as 1 for this function to be available.
- * See the CONFIG_uration section for more information.
+ * INCLUDE_vTaskDelayUntil must be defined as 1 for this function to be available.
+ * See the configuration section for more information.
  *
  * Delay a task until a specified time.  This function can be used by periodic
  * tasks to ensure a constant execution frequency.
@@ -617,8 +617,8 @@ void vTaskDelayUntil( TickType_t * const pxPreviousWakeTime, const TickType_t xT
  * task. h
  * <pre>UBaseType_t uxTaskPriorityGet( TaskHandle_t xTask );</pre>
  *
- * CONFIG_INCLUDE_uxTaskPriorityGet must be defined as 1 for this function to be available.
- * See the CONFIG_uration section for more information.
+ * INCLUDE_uxTaskPriorityGet must be defined as 1 for this function to be available.
+ * See the configuration section for more information.
  *
  * Obtain the priority of any task.
  *
@@ -672,8 +672,8 @@ UBaseType_t uxTaskPriorityGetFromISR( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>eTaskState eTaskGetState( TaskHandle_t xTask );</pre>
  *
- * CONFIG_INCLUDE_eTaskGetState must be defined as 1 for this function to be available.
- * See the CONFIG_uration section for more information.
+ * INCLUDE_eTaskGetState must be defined as 1 for this function to be available.
+ * See the configuration section for more information.
  *
  * Obtain the state of any task.  States are encoded by the eTaskState
  * enumerated type.
@@ -690,8 +690,8 @@ eTaskState eTaskGetState( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>void vTaskPrioritySet( TaskHandle_t xTask, UBaseType_t uxNewPriority );</pre>
  *
- * CONFIG_INCLUDE_vTaskPrioritySet must be defined as 1 for this function to be available.
- * See the CONFIG_uration section for more information.
+ * INCLUDE_vTaskPrioritySet must be defined as 1 for this function to be available.
+ * See the configuration section for more information.
  *
  * Set the priority of any task.
  *
@@ -732,8 +732,8 @@ void vTaskPrioritySet( TaskHandle_t xTask, UBaseType_t uxNewPriority ) PRIVILEGE
  * task. h
  * <pre>void vTaskSuspend( TaskHandle_t xTaskToSuspend );</pre>
  *
- * CONFIG_INCLUDE_vTaskSuspend must be defined as 1 for this function to be available.
- * See the CONFIG_uration section for more information.
+ * INCLUDE_vTaskSuspend must be defined as 1 for this function to be available.
+ * See the configuration section for more information.
  *
  * Suspend any task.  When suspended a task will never get any microcontroller
  * processing time, no matter what its priority.
@@ -783,8 +783,8 @@ void vTaskSuspend( TaskHandle_t xTaskToSuspend ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>void vTaskResume( TaskHandle_t xTaskToResume );</pre>
  *
- * CONFIG_INCLUDE_vTaskSuspend must be defined as 1 for this function to be available.
- * See the CONFIG_uration section for more information.
+ * INCLUDE_vTaskSuspend must be defined as 1 for this function to be available.
+ * See the configuration section for more information.
  *
  * Resumes a suspended task.
  *
@@ -832,8 +832,8 @@ void vTaskResume( TaskHandle_t xTaskToResume ) PRIVILEGED_FUNCTION;
  * task. h
  * <pre>void xTaskResumeFromISR( TaskHandle_t xTaskToResume );</pre>
  *
- * CONFIG_INCLUDE_xTaskResumeFromISR must be defined as 1 for this function to be
- * available.  See the CONFIG_uration section for more information.
+ * INCLUDE_xTaskResumeFromISR must be defined as 1 for this function to be
+ * available.  See the configuration section for more information.
  *
  * An implementation of vTaskResume() that can be called from within an ISR.
  *
@@ -1102,7 +1102,7 @@ UBaseType_t uxTaskGetNumberOfTasks( void ) PRIVILEGED_FUNCTION;
  *
  * @return The text (human readable) name of the task referenced by the handle
  * xTaskToQuery.  A task can query its own name by either passing in its own
- * handle, or by setting xTaskToQuery to NULL.  CONFIG_INCLUDE_pcTaskGetTaskName must be
+ * handle, or by setting xTaskToQuery to NULL.  INCLUDE_pcTaskGetTaskName must be
  * set to 1 in FreeRTOSConfig.h for pcTaskGetTaskName() to be available.
  *
  * \defgroup pcTaskGetTaskName pcTaskGetTaskName
@@ -1114,7 +1114,7 @@ char *pcTaskGetTaskName( TaskHandle_t xTaskToQuery ) PRIVILEGED_FUNCTION; /*lint
  * task.h
  * <PRE>UBaseType_t uxTaskGetStackHighWaterMark( TaskHandle_t xTask );</PRE>
  *
- * CONFIG_INCLUDE_uxTaskGetStackHighWaterMark must be set to 1 in FreeRTOSConfig.h for
+ * INCLUDE_uxTaskGetStackHighWaterMark must be set to 1 in FreeRTOSConfig.h for
  * this function to be available.
  *
  * Returns the high water mark of the stack associated with xTask.  That is,
@@ -1135,10 +1135,10 @@ UBaseType_t uxTaskGetStackHighWaterMark( TaskHandle_t xTask ) PRIVILEGED_FUNCTIO
 FreeRTOS.h.  When this is done TaskHookFunction_t will not yet have been defined,
 so the following two prototypes will cause a compilation error.  This can be
 fixed by simply guarding against the inclusion of these two prototypes unless
-they are explicitly required by the CONFIG_USE_APPLICATION_TASK_TAG CONFIG_uration
+they are explicitly required by the configUSE_APPLICATION_TASK_TAG configuration
 constant. */
-#ifdef CONFIG_USE_APPLICATION_TASK_TAG
-	#if CONFIG_USE_APPLICATION_TASK_TAG == 1
+#ifdef configUSE_APPLICATION_TASK_TAG
+	#if configUSE_APPLICATION_TASK_TAG == 1
 		/**
 		 * task.h
 		 * <pre>void vTaskSetApplicationTaskTag( TaskHandle_t xTask, TaskHookFunction_t pxHookFunction );</pre>
@@ -1156,13 +1156,13 @@ constant. */
 		 * Returns the pxHookFunction value assigned to the task xTask.
 		 */
 		TaskHookFunction_t xTaskGetApplicationTaskTag( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
-	#endif /* CONFIG_USE_APPLICATION_TASK_TAG ==1 */
-#endif /* ifdef CONFIG_USE_APPLICATION_TASK_TAG */
+	#endif /* configUSE_APPLICATION_TASK_TAG ==1 */
+#endif /* ifdef configUSE_APPLICATION_TASK_TAG */
 
-#if( CONFIG_NUM_THREAD_LOCAL_STORAGE_POINTERS > 0 )
+#if( configNUM_THREAD_LOCAL_STORAGE_POINTERS > 0 )
 
 	/* Each task contains an array of pointers that is dimensioned by the
-	CONFIG_NUM_THREAD_LOCAL_STORAGE_POINTERS setting in FreeRTOSConfig.h.  The
+	configNUM_THREAD_LOCAL_STORAGE_POINTERS setting in FreeRTOSConfig.h.  The
 	kernel does not use the pointers itself, so the application writer can use
 	the pointers for any purpose they wish.  The following two functions are
 	used to set and query a pointer respectively. */
@@ -1186,7 +1186,7 @@ BaseType_t xTaskCallApplicationTaskHook( TaskHandle_t xTask, void *pvParameter )
 
 /**
  * xTaskGetIdleTaskHandle() is only available if
- * CONFIG_INCLUDE_xTaskGetIdleTaskHandle is set to 1 in FreeRTOSConfig.h.
+ * INCLUDE_xTaskGetIdleTaskHandle is set to 1 in FreeRTOSConfig.h.
  *
  * Simply returns the handle of the idle task.  It is not valid to call
  * xTaskGetIdleTaskHandle() before the scheduler has been started.
@@ -1194,7 +1194,7 @@ BaseType_t xTaskCallApplicationTaskHook( TaskHandle_t xTask, void *pvParameter )
 TaskHandle_t xTaskGetIdleTaskHandle( void ) PRIVILEGED_FUNCTION;
 
 /**
- * CONFIG_USE_TRACE_FACILITY must be defined as 1 in FreeRTOSConfig.h for
+ * configUSE_TRACE_FACILITY must be defined as 1 in FreeRTOSConfig.h for
  * uxTaskGetSystemState() to be available.
  *
  * uxTaskGetSystemState() populates an TaskStatus_t structure for each task in
@@ -1216,7 +1216,7 @@ TaskHandle_t xTaskGetIdleTaskHandle( void ) PRIVILEGED_FUNCTION;
  * the number of TaskStatus_t structures contained in the array, not by the
  * number of bytes in the array.
  *
- * @param pulTotalRunTime If CONFIG_GENERATE_RUN_TIME_STATS is set to 1 in
+ * @param pulTotalRunTime If configGENERATE_RUN_TIME_STATS is set to 1 in
  * FreeRTOSConfig.h then *pulTotalRunTime is set by uxTaskGetSystemState() to the
  * total run time (as defined by the run time stats clock, see
  * http://www.freertos.org/rtos-run-time-stats.html) since the target booted.
@@ -1296,9 +1296,9 @@ UBaseType_t uxTaskGetSystemState( TaskStatus_t * const pxTaskStatusArray, const 
  * task. h
  * <PRE>void vTaskList( char *pcWriteBuffer );</PRE>
  *
- * CONFIG_USE_TRACE_FACILITY and CONFIG_USE_STATS_FORMATTING_FUNCTIONS must
+ * configUSE_TRACE_FACILITY and configUSE_STATS_FORMATTING_FUNCTIONS must
  * both be defined as 1 for this function to be available.  See the
- * CONFIG_uration section of the FreeRTOS.org website for more information.
+ * configuration section of the FreeRTOS.org website for more information.
  *
  * NOTE 1: This function will disable interrupts for its duration.  It is
  * not intended for normal application runtime use but as a debug aid.
@@ -1343,21 +1343,21 @@ void vTaskList( char * pcWriteBuffer ) PRIVILEGED_FUNCTION; /*lint !e971 Unquali
  * task. h
  * <PRE>void vTaskGetRunTimeStats( char *pcWriteBuffer );</PRE>
  *
- * CONFIG_GENERATE_RUN_TIME_STATS and CONFIG_USE_STATS_FORMATTING_FUNCTIONS
+ * configGENERATE_RUN_TIME_STATS and configUSE_STATS_FORMATTING_FUNCTIONS
  * must both be defined as 1 for this function to be available.  The application
  * must also then provide definitions for
  * portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() and portGET_RUN_TIME_COUNTER_VALUE()
- * to CONFIG_ure a peripheral timer/counter and return the timers current count
+ * to configure a peripheral timer/counter and return the timers current count
  * value respectively.  The counter should be at least 10 times the frequency of
  * the tick count.
  *
  * NOTE 1: This function will disable interrupts for its duration.  It is
  * not intended for normal application runtime use but as a debug aid.
  *
- * Setting CONFIG_GENERATE_RUN_TIME_STATS to 1 will result in a total
+ * Setting configGENERATE_RUN_TIME_STATS to 1 will result in a total
  * accumulated execution time being stored for each task.  The resolution
  * of the accumulated time value depends on the frequency of the timer
- * CONFIG_ured by the portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() macro.
+ * configured by the portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() macro.
  * Calling vTaskGetRunTimeStats() writes the total execution time of each
  * task into a buffer, both as an absolute count value and as a percentage
  * of the total system execution time.
@@ -1397,10 +1397,10 @@ void vTaskGetRunTimeStats( char *pcWriteBuffer ) PRIVILEGED_FUNCTION; /*lint !e9
  * task. h
  * <PRE>BaseType_t xTaskNotify( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction );</PRE>
  *
- * CONFIG_USE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this
+ * configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this
  * function to be available.
  *
- * When CONFIG_USE_TASK_NOTIFICATIONS is set to one each task has its own private
+ * When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private
  * "notification value", which is a 32-bit unsigned integer (uint32_t).
  *
  * Events can be sent to a task using an intermediary object.  Examples of such
@@ -1480,10 +1480,10 @@ BaseType_t xTaskGenericNotify( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNo
  * task. h
  * <PRE>BaseType_t xTaskNotifyFromISR( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, BaseType_t *pxHigherPriorityTaskWoken );</PRE>
  *
- * CONFIG_USE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this
+ * configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this
  * function to be available.
  *
- * When CONFIG_USE_TASK_NOTIFICATIONS is set to one each task has its own private
+ * When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private
  * "notification value", which is a 32-bit unsigned integer (uint32_t).
  *
  * A version of xTaskNotify() that can be used from an interrupt service routine
@@ -1571,10 +1571,10 @@ BaseType_t xTaskGenericNotifyFromISR( TaskHandle_t xTaskToNotify, uint32_t ulVal
  * task. h
  * <PRE>BaseType_t xTaskNotifyWait( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClearOnExit, uint32_t *pulNotificationValue, TickType_t xTicksToWait );</pre>
  *
- * CONFIG_USE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this
+ * configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this
  * function to be available.
  *
- * When CONFIG_USE_TASK_NOTIFICATIONS is set to one each task has its own private
+ * When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private
  * "notification value", which is a 32-bit unsigned integer (uint32_t).
  *
  * Events can be sent to a task using an intermediary object.  Examples of such
@@ -1646,10 +1646,10 @@ BaseType_t xTaskNotifyWait( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClea
  * task. h
  * <PRE>BaseType_t xTaskNotifyGive( TaskHandle_t xTaskToNotify );</PRE>
  *
- * CONFIG_USE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this macro
+ * configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this macro
  * to be available.
  *
- * When CONFIG_USE_TASK_NOTIFICATIONS is set to one each task has its own private
+ * When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private
  * "notification value", which is a 32-bit unsigned integer (uint32_t).
  *
  * Events can be sent to a task using an intermediary object.  Examples of such
@@ -1692,10 +1692,10 @@ BaseType_t xTaskNotifyWait( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClea
  * task. h
  * <PRE>void vTaskNotifyGiveFromISR( TaskHandle_t xTaskHandle, BaseType_t *pxHigherPriorityTaskWoken );
  *
- * CONFIG_USE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this macro
+ * configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this macro
  * to be available.
  *
- * When CONFIG_USE_TASK_NOTIFICATIONS is set to one each task has its own private
+ * When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private
  * "notification value", which is a 32-bit unsigned integer (uint32_t).
  *
  * A version of xTaskNotifyGive() that can be called from an interrupt service
@@ -1747,10 +1747,10 @@ void vTaskNotifyGiveFromISR( TaskHandle_t xTaskToNotify, BaseType_t *pxHigherPri
  * task. h
  * <PRE>uint32_t ulTaskNotifyTake( BaseType_t xClearCountOnExit, TickType_t xTicksToWait );</pre>
  *
- * CONFIG_USE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this
+ * configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this
  * function to be available.
  *
- * When CONFIG_USE_TASK_NOTIFICATIONS is set to one each task has its own private
+ * When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private
  * "notification value", which is a 32-bit unsigned integer (uint32_t).
  *
  * Events can be sent to a task using an intermediary object.  Examples of such
@@ -1997,7 +1997,7 @@ UBaseType_t uxTaskGetTaskNumber( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
 void vTaskSetTaskNumber( TaskHandle_t xTask, const UBaseType_t uxHandle ) PRIVILEGED_FUNCTION;
 
 /*
- * Only available when CONFIG_USE_TICKLESS_IDLE is set to 1.
+ * Only available when configUSE_TICKLESS_IDLE is set to 1.
  * If tickless mode is being used, or a low power mode is implemented, then
  * the tick interrupt will not execute during idle periods.  When this is the
  * case, the tick count value maintained by the scheduler needs to be kept up
@@ -2007,7 +2007,7 @@ void vTaskSetTaskNumber( TaskHandle_t xTask, const UBaseType_t uxHandle ) PRIVIL
 void vTaskStepTick( const TickType_t xTicksToJump ) PRIVILEGED_FUNCTION;
 
 /*
- * Only avilable when CONFIG_USE_TICKLESS_IDLE is set to 1.
+ * Only avilable when configUSE_TICKLESS_IDLE is set to 1.
  * Provided for use within portSUPPRESS_TICKS_AND_SLEEP() to allow the port
  * specific sleep function to determine if it is ok to proceed with the sleep,
  * and if it is ok to proceed, if it is ok to sleep indefinitely.

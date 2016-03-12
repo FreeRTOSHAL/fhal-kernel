@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -253,7 +253,7 @@ projects should not use them. */
 #ifdef BCC_INDUSTRIAL_PC_PORT
 	/* A short file name has to be used in place of the normal
 	FreeRTOSConfig.h when using the Borland compiler. */
-	#include "frCONFIG_.h"
+	#include "frconfig.h"
 	#include "..\portable\BCC\16BitDOS\PC\prtmacro.h"
     typedef void ( __interrupt __far *pxISR )();
 #endif
@@ -261,7 +261,7 @@ projects should not use them. */
 #ifdef BCC_FLASH_LITE_186_PORT
 	/* A short file name has to be used in place of the normal
 	FreeRTOSConfig.h when using the Borland compiler. */
-	#include "frCONFIG_.h"
+	#include "frconfig.h"
 	#include "..\portable\BCC\16BitDOS\flsh186\prtmacro.h"
     typedef void ( __interrupt __far *pxISR )();
 #endif

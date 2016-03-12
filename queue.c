@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -70,24 +70,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Defining MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE prevents task.h from redefining
+/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
 task.h is included from an application file. */
-#define MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 
-#if ( CONFIG_USE_CO_ROUTINES == 1 )
+#if ( configUSE_CO_ROUTINES == 1 )
 	#include "croutine.h"
 #endif
 
 /* Lint e961 and e750 are suppressed as a MISRA exception justified because the
-MPU ports require MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE to be defined for the
+MPU ports require MPU_WRAPPERS_INCLUDED_FROM_API_FILE to be defined for the
 header files above, but not in this file, in order to generate the correct
 privileged Vs unprivileged linkage and placement. */
-#undef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE /*lint !e961 !e750. */
+#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE /*lint !e961 !e750. */
 
 
 /* Constants used with the xRxLock and xTxLock structure members. */
@@ -114,7 +114,7 @@ zero. */
 #define queueSEMAPHORE_QUEUE_ITEM_LENGTH ( ( UBaseType_t ) 0 )
 #define queueMUTEX_GIVE_BLOCK_TIME		 ( ( TickType_t ) 0U )
 
-#if( CONFIG_USE_PREEMPTION == 0 )
+#if( configUSE_PREEMPTION == 0 )
 	/* If the cooperative scheduler is being used then a yield should not be
 	performed just because a higher priority task has been woken. */
 	#define queueYIELD_IF_USING_PREEMPTION()
@@ -149,12 +149,12 @@ typedef struct QueueDefinition
 	volatile BaseType_t xRxLock;	/*< Stores the number of items received from the queue (removed from the queue) while the queue was locked.  Set to queueUNLOCKED when the queue is not locked. */
 	volatile BaseType_t xTxLock;	/*< Stores the number of items transmitted to the queue (added to the queue) while the queue was locked.  Set to queueUNLOCKED when the queue is not locked. */
 
-	#if ( CONFIG_USE_TRACE_FACILITY == 1 )
+	#if ( configUSE_TRACE_FACILITY == 1 )
 		UBaseType_t uxQueueNumber;
 		uint8_t ucQueueType;
 	#endif
 
-	#if ( CONFIG_USE_QUEUE_SETS == 1 )
+	#if ( configUSE_QUEUE_SETS == 1 )
 		struct QueueDefinition *pxQueueSetContainer;
 	#endif
 
@@ -170,7 +170,7 @@ typedef xQUEUE Queue_t;
  * The queue registry is just a means for kernel aware debuggers to locate
  * queue structures.  It has no other purpose so is an optional component.
  */
-#if ( CONFIG_QUEUE_REGISTRY_SIZE > 0 )
+#if ( configQUEUE_REGISTRY_SIZE > 0 )
 
 	/* The type stored within the queue registry array.  This allows a name
 	to be assigned to each queue making kernel aware debugging a little
@@ -189,9 +189,9 @@ typedef xQUEUE Queue_t;
 	/* The queue registry is simply an array of QueueRegistryItem_t structures.
 	The pcQueueName member of a structure being NULL is indicative of the
 	array position being vacant. */
-	PRIVILEGED_DATA QueueRegistryItem_t xQueueRegistry[ CONFIG_QUEUE_REGISTRY_SIZE ];
+	PRIVILEGED_DATA QueueRegistryItem_t xQueueRegistry[ configQUEUE_REGISTRY_SIZE ];
 
-#endif /* CONFIG_QUEUE_REGISTRY_SIZE */
+#endif /* configQUEUE_REGISTRY_SIZE */
 
 /*
  * Unlocks a queue locked by a call to prvLockQueue.  Locking a queue does not
@@ -228,7 +228,7 @@ static BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue, const void *pvIte
  */
 static void prvCopyDataFromQueue( Queue_t * const pxQueue, void * const pvBuffer ) PRIVILEGED_FUNCTION;
 
-#if ( CONFIG_USE_QUEUE_SETS == 1 )
+#if ( configUSE_QUEUE_SETS == 1 )
 	/*
 	 * Checks to see if a queue is a member of a queue set, and if so, notifies
 	 * the queue set that the queue contains data.
@@ -261,7 +261,7 @@ BaseType_t xQueueGenericReset( QueueHandle_t xQueue, BaseType_t xNewQueue )
 {
 Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 
-	CONFIG_ASSERT( pxQueue );
+	configASSERT( pxQueue );
 
 	taskENTER_CRITICAL();
 	{
@@ -317,10 +317,10 @@ size_t xQueueSizeInBytes;
 QueueHandle_t xReturn = NULL;
 
 	/* Remove compiler warnings about unused parameters should
-	CONFIG_USE_TRACE_FACILITY not be set to 1. */
+	configUSE_TRACE_FACILITY not be set to 1. */
 	( void ) ucQueueType;
 
-	CONFIG_ASSERT( uxQueueLength > ( UBaseType_t ) 0 );
+	configASSERT( uxQueueLength > ( UBaseType_t ) 0 );
 
 	if( uxItemSize == ( UBaseType_t ) 0 )
 	{
@@ -360,17 +360,17 @@ QueueHandle_t xReturn = NULL;
 		pxNewQueue->uxItemSize = uxItemSize;
 		( void ) xQueueGenericReset( pxNewQueue, pdTRUE );
 
-		#if ( CONFIG_USE_TRACE_FACILITY == 1 )
+		#if ( configUSE_TRACE_FACILITY == 1 )
 		{
 			pxNewQueue->ucQueueType = ucQueueType;
 		}
-		#endif /* CONFIG_USE_TRACE_FACILITY */
+		#endif /* configUSE_TRACE_FACILITY */
 
-		#if( CONFIG_USE_QUEUE_SETS == 1 )
+		#if( configUSE_QUEUE_SETS == 1 )
 		{
 			pxNewQueue->pxQueueSetContainer = NULL;
 		}
-		#endif /* CONFIG_USE_QUEUE_SETS */
+		#endif /* configUSE_QUEUE_SETS */
 
 		traceQUEUE_CREATE( pxNewQueue );
 		xReturn = pxNewQueue;
@@ -380,20 +380,20 @@ QueueHandle_t xReturn = NULL;
 		mtCOVERAGE_TEST_MARKER();
 	}
 
-	CONFIG_ASSERT( xReturn );
+	configASSERT( xReturn );
 
 	return xReturn;
 }
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_MUTEXES == 1 )
+#if ( configUSE_MUTEXES == 1 )
 
 	QueueHandle_t xQueueCreateMutex( const uint8_t ucQueueType )
 	{
 	Queue_t *pxNewQueue;
 
 		/* Prevent compiler warnings about unused parameters if
-		CONFIG_USE_TRACE_FACILITY does not equal 1. */
+		configUSE_TRACE_FACILITY does not equal 1. */
 		( void ) ucQueueType;
 
 		/* Allocate the new queue structure. */
@@ -418,13 +418,13 @@ QueueHandle_t xReturn = NULL;
 			pxNewQueue->xRxLock = queueUNLOCKED;
 			pxNewQueue->xTxLock = queueUNLOCKED;
 
-			#if ( CONFIG_USE_TRACE_FACILITY == 1 )
+			#if ( configUSE_TRACE_FACILITY == 1 )
 			{
 				pxNewQueue->ucQueueType = ucQueueType;
 			}
 			#endif
 
-			#if ( CONFIG_USE_QUEUE_SETS == 1 )
+			#if ( configUSE_QUEUE_SETS == 1 )
 			{
 				pxNewQueue->pxQueueSetContainer = NULL;
 			}
@@ -447,10 +447,10 @@ QueueHandle_t xReturn = NULL;
 		return pxNewQueue;
 	}
 
-#endif /* CONFIG_USE_MUTEXES */
+#endif /* configUSE_MUTEXES */
 /*-----------------------------------------------------------*/
 
-#if ( ( CONFIG_USE_MUTEXES == 1 ) && ( CONFIG_INCLUDE_xSemaphoreGetMutexHolder == 1 ) )
+#if ( ( configUSE_MUTEXES == 1 ) && ( INCLUDE_xSemaphoreGetMutexHolder == 1 ) )
 
 	void* xQueueGetMutexHolder( QueueHandle_t xSemaphore )
 	{
@@ -480,14 +480,14 @@ QueueHandle_t xReturn = NULL;
 #endif
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_RECURSIVE_MUTEXES == 1 )
+#if ( configUSE_RECURSIVE_MUTEXES == 1 )
 
 	BaseType_t xQueueGiveMutexRecursive( QueueHandle_t xMutex )
 	{
 	BaseType_t xReturn;
 	Queue_t * const pxMutex = ( Queue_t * ) xMutex;
 
-		CONFIG_ASSERT( pxMutex );
+		configASSERT( pxMutex );
 
 		/* If this is the task that holds the mutex then pxMutexHolder will not
 		change outside of this task.  If this task does not hold the mutex then
@@ -532,17 +532,17 @@ QueueHandle_t xReturn = NULL;
 		return xReturn;
 	}
 
-#endif /* CONFIG_USE_RECURSIVE_MUTEXES */
+#endif /* configUSE_RECURSIVE_MUTEXES */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_RECURSIVE_MUTEXES == 1 )
+#if ( configUSE_RECURSIVE_MUTEXES == 1 )
 
 	BaseType_t xQueueTakeMutexRecursive( QueueHandle_t xMutex, TickType_t xTicksToWait )
 	{
 	BaseType_t xReturn;
 	Queue_t * const pxMutex = ( Queue_t * ) xMutex;
 
-		CONFIG_ASSERT( pxMutex );
+		configASSERT( pxMutex );
 
 		/* Comments regarding mutual exclusion as per those within
 		xQueueGiveMutexRecursive(). */
@@ -574,17 +574,17 @@ QueueHandle_t xReturn = NULL;
 		return xReturn;
 	}
 
-#endif /* CONFIG_USE_RECURSIVE_MUTEXES */
+#endif /* configUSE_RECURSIVE_MUTEXES */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_COUNTING_SEMAPHORES == 1 )
+#if ( configUSE_COUNTING_SEMAPHORES == 1 )
 
 	QueueHandle_t xQueueCreateCountingSemaphore( const UBaseType_t uxMaxCount, const UBaseType_t uxInitialCount )
 	{
 	QueueHandle_t xHandle;
 
-		CONFIG_ASSERT( uxMaxCount != 0 );
-		CONFIG_ASSERT( uxInitialCount <= uxMaxCount );
+		configASSERT( uxMaxCount != 0 );
+		configASSERT( uxInitialCount <= uxMaxCount );
 
 		xHandle = xQueueGenericCreate( uxMaxCount, queueSEMAPHORE_QUEUE_ITEM_LENGTH, queueQUEUE_TYPE_COUNTING_SEMAPHORE );
 
@@ -599,11 +599,11 @@ QueueHandle_t xReturn = NULL;
 			traceCREATE_COUNTING_SEMAPHORE_FAILED();
 		}
 
-		CONFIG_ASSERT( xHandle );
+		configASSERT( xHandle );
 		return xHandle;
 	}
 
-#endif /* CONFIG_USE_COUNTING_SEMAPHORES */
+#endif /* configUSE_COUNTING_SEMAPHORES */
 /*-----------------------------------------------------------*/
 
 BaseType_t xQueueGenericSend( QueueHandle_t xQueue, const void * const pvItemToQueue, TickType_t xTicksToWait, const BaseType_t xCopyPosition )
@@ -612,12 +612,12 @@ BaseType_t xEntryTimeSet = pdFALSE, xYieldRequired;
 TimeOut_t xTimeOut;
 Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 
-	CONFIG_ASSERT( pxQueue );
-	CONFIG_ASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
-	CONFIG_ASSERT( !( ( xCopyPosition == queueOVERWRITE ) && ( pxQueue->uxLength != 1 ) ) );
-	#if ( ( CONFIG_INCLUDE_xTaskGetSchedulerState == 1 ) || ( CONFIG_USE_TIMERS == 1 ) )
+	configASSERT( pxQueue );
+	configASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
+	configASSERT( !( ( xCopyPosition == queueOVERWRITE ) && ( pxQueue->uxLength != 1 ) ) );
+	#if ( ( INCLUDE_xTaskGetSchedulerState == 1 ) || ( configUSE_TIMERS == 1 ) )
 	{
-		CONFIG_ASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED ) && ( xTicksToWait != 0 ) ) );
+		configASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED ) && ( xTicksToWait != 0 ) ) );
 	}
 	#endif
 
@@ -638,7 +638,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 				traceQUEUE_SEND( pxQueue );
 				xYieldRequired = prvCopyDataToQueue( pxQueue, pvItemToQueue, xCopyPosition );
 
-				#if ( CONFIG_USE_QUEUE_SETS == 1 )
+				#if ( configUSE_QUEUE_SETS == 1 )
 				{
 					if( pxQueue->pxQueueSetContainer != NULL )
 					{
@@ -687,7 +687,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 						}
 					}
 				}
-				#else /* CONFIG_USE_QUEUE_SETS */
+				#else /* configUSE_QUEUE_SETS */
 				{
 					/* If there was a task waiting for data to arrive on the
 					queue then unblock it now. */
@@ -719,7 +719,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 						mtCOVERAGE_TEST_MARKER();
 					}
 				}
-				#endif /* CONFIG_USE_QUEUE_SETS */
+				#endif /* configUSE_QUEUE_SETS */
 
 				taskEXIT_CRITICAL();
 				return pdPASS;
@@ -740,7 +740,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 				else if( xEntryTimeSet == pdFALSE )
 				{
 					/* The queue was full and a block time was specified so
-					CONFIG_ure the timeout structure. */
+					configure the timeout structure. */
 					vTaskSetTimeOutState( &xTimeOut );
 					xEntryTimeSet = pdTRUE;
 				}
@@ -806,7 +806,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 }
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_ALTERNATIVE_API == 1 )
+#if ( configUSE_ALTERNATIVE_API == 1 )
 
 	BaseType_t xQueueAltGenericSend( QueueHandle_t xQueue, const void * const pvItemToQueue, TickType_t xTicksToWait, BaseType_t xCopyPosition )
 	{
@@ -814,8 +814,8 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 	TimeOut_t xTimeOut;
 	Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 
-		CONFIG_ASSERT( pxQueue );
-		CONFIG_ASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
+		configASSERT( pxQueue );
+		configASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
 
 		for( ;; )
 		{
@@ -893,10 +893,10 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 		}
 	}
 
-#endif /* CONFIG_USE_ALTERNATIVE_API */
+#endif /* configUSE_ALTERNATIVE_API */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_ALTERNATIVE_API == 1 )
+#if ( configUSE_ALTERNATIVE_API == 1 )
 
 	BaseType_t xQueueAltGenericReceive( QueueHandle_t xQueue, void * const pvBuffer, TickType_t xTicksToWait, BaseType_t xJustPeeking )
 	{
@@ -905,8 +905,8 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 	int8_t *pcOriginalReadPosition;
 	Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 
-		CONFIG_ASSERT( pxQueue );
-		CONFIG_ASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
+		configASSERT( pxQueue );
+		configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
 
 		for( ;; )
 		{
@@ -926,7 +926,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 						/* Data is actually being removed (not just peeked). */
 						--( pxQueue->uxMessagesWaiting );
 
-						#if ( CONFIG_USE_MUTEXES == 1 )
+						#if ( configUSE_MUTEXES == 1 )
 						{
 							if( pxQueue->uxQueueType == queueQUEUE_IS_MUTEX )
 							{
@@ -1011,7 +1011,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 					{
 						traceBLOCKING_ON_QUEUE_RECEIVE( pxQueue );
 
-						#if ( CONFIG_USE_MUTEXES == 1 )
+						#if ( configUSE_MUTEXES == 1 )
 						{
 							if( pxQueue->uxQueueType == queueQUEUE_IS_MUTEX )
 							{
@@ -1048,7 +1048,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 	}
 
 
-#endif /* CONFIG_USE_ALTERNATIVE_API */
+#endif /* configUSE_ALTERNATIVE_API */
 /*-----------------------------------------------------------*/
 
 BaseType_t xQueueGenericSendFromISR( QueueHandle_t xQueue, const void * const pvItemToQueue, BaseType_t * const pxHigherPriorityTaskWoken, const BaseType_t xCopyPosition )
@@ -1057,18 +1057,18 @@ BaseType_t xReturn;
 UBaseType_t uxSavedInterruptStatus;
 Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 
-	CONFIG_ASSERT( pxQueue );
-	CONFIG_ASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
-	CONFIG_ASSERT( !( ( xCopyPosition == queueOVERWRITE ) && ( pxQueue->uxLength != 1 ) ) );
+	configASSERT( pxQueue );
+	configASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
+	configASSERT( !( ( xCopyPosition == queueOVERWRITE ) && ( pxQueue->uxLength != 1 ) ) );
 
 	/* RTOS ports that support interrupt nesting have the concept of a maximum
 	system call (or maximum API call) interrupt priority.  Interrupts that are
 	above the maximum system call priority are kept permanently enabled, even
 	when the RTOS kernel is in a critical section, but cannot make any calls to
-	FreeRTOS API functions.  If CONFIG_ASSERT() is defined in FreeRTOSConfig.h
+	FreeRTOS API functions.  If configASSERT() is defined in FreeRTOSConfig.h
 	then portASSERT_IF_INTERRUPT_PRIORITY_INVALID() will result in an assertion
 	failure if a FreeRTOS API function is called from an interrupt that has been
-	assigned a priority above the CONFIG_ured maximum system call priority.
+	assigned a priority above the configured maximum system call priority.
 	Only FreeRTOS functions that end in FromISR can be called from interrupts
 	that have been assigned a priority at or (logically) below the maximum
 	system call	interrupt priority.  FreeRTOS maintains a separate interrupt
@@ -1099,7 +1099,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 			be done when the queue is unlocked later. */
 			if( pxQueue->xTxLock == queueUNLOCKED )
 			{
-				#if ( CONFIG_USE_QUEUE_SETS == 1 )
+				#if ( configUSE_QUEUE_SETS == 1 )
 				{
 					if( pxQueue->pxQueueSetContainer != NULL )
 					{
@@ -1150,7 +1150,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 						}
 					}
 				}
-				#else /* CONFIG_USE_QUEUE_SETS */
+				#else /* configUSE_QUEUE_SETS */
 				{
 					if( listLIST_IS_EMPTY( &( pxQueue->xTasksWaitingToReceive ) ) == pdFALSE )
 					{
@@ -1177,7 +1177,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 						mtCOVERAGE_TEST_MARKER();
 					}
 				}
-				#endif /* CONFIG_USE_QUEUE_SETS */
+				#endif /* configUSE_QUEUE_SETS */
 			}
 			else
 			{
@@ -1212,25 +1212,25 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 	not (i.e. has a task with a higher priority than us been woken by this
 	post). */
 
-	CONFIG_ASSERT( pxQueue );
+	configASSERT( pxQueue );
 
 	/* xQueueGenericSendFromISR() should be used instead of xQueueGiveFromISR()
 	if the item size is not 0. */
-	CONFIG_ASSERT( pxQueue->uxItemSize == 0 );
+	configASSERT( pxQueue->uxItemSize == 0 );
 
 	/* Normally a mutex would not be given from an interrupt, especially if
 	there is a mutex holder, as priority inheritance makes no sense for an
 	interrupts, only tasks. */
-	CONFIG_ASSERT( !( ( pxQueue->uxQueueType == queueQUEUE_IS_MUTEX ) && ( pxQueue->pxMutexHolder != NULL ) ) );
+	configASSERT( !( ( pxQueue->uxQueueType == queueQUEUE_IS_MUTEX ) && ( pxQueue->pxMutexHolder != NULL ) ) );
 
 	/* RTOS ports that support interrupt nesting have the concept of a maximum
 	system call (or maximum API call) interrupt priority.  Interrupts that are
 	above the maximum system call priority are kept permanently enabled, even
 	when the RTOS kernel is in a critical section, but cannot make any calls to
-	FreeRTOS API functions.  If CONFIG_ASSERT() is defined in FreeRTOSConfig.h
+	FreeRTOS API functions.  If configASSERT() is defined in FreeRTOSConfig.h
 	then portASSERT_IF_INTERRUPT_PRIORITY_INVALID() will result in an assertion
 	failure if a FreeRTOS API function is called from an interrupt that has been
-	assigned a priority above the CONFIG_ured maximum system call priority.
+	assigned a priority above the configured maximum system call priority.
 	Only FreeRTOS functions that end in FromISR can be called from interrupts
 	that have been assigned a priority at or (logically) below the maximum
 	system call	interrupt priority.  FreeRTOS maintains a separate interrupt
@@ -1260,7 +1260,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 			be done when the queue is unlocked later. */
 			if( pxQueue->xTxLock == queueUNLOCKED )
 			{
-				#if ( CONFIG_USE_QUEUE_SETS == 1 )
+				#if ( configUSE_QUEUE_SETS == 1 )
 				{
 					if( pxQueue->pxQueueSetContainer != NULL )
 					{
@@ -1311,7 +1311,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 						}
 					}
 				}
-				#else /* CONFIG_USE_QUEUE_SETS */
+				#else /* configUSE_QUEUE_SETS */
 				{
 					if( listLIST_IS_EMPTY( &( pxQueue->xTasksWaitingToReceive ) ) == pdFALSE )
 					{
@@ -1338,7 +1338,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 						mtCOVERAGE_TEST_MARKER();
 					}
 				}
-				#endif /* CONFIG_USE_QUEUE_SETS */
+				#endif /* configUSE_QUEUE_SETS */
 			}
 			else
 			{
@@ -1368,11 +1368,11 @@ TimeOut_t xTimeOut;
 int8_t *pcOriginalReadPosition;
 Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 
-	CONFIG_ASSERT( pxQueue );
-	CONFIG_ASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
-	#if ( ( CONFIG_INCLUDE_xTaskGetSchedulerState == 1 ) || ( CONFIG_USE_TIMERS == 1 ) )
+	configASSERT( pxQueue );
+	configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
+	#if ( ( INCLUDE_xTaskGetSchedulerState == 1 ) || ( configUSE_TIMERS == 1 ) )
 	{
-		CONFIG_ASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED ) && ( xTicksToWait != 0 ) ) );
+		configASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED ) && ( xTicksToWait != 0 ) ) );
 	}
 	#endif
 
@@ -1401,7 +1401,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 					/* Actually removing data, not just peeking. */
 					--( pxQueue->uxMessagesWaiting );
 
-					#if ( CONFIG_USE_MUTEXES == 1 )
+					#if ( configUSE_MUTEXES == 1 )
 					{
 						if( pxQueue->uxQueueType == queueQUEUE_IS_MUTEX )
 						{
@@ -1414,7 +1414,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 							mtCOVERAGE_TEST_MARKER();
 						}
 					}
-					#endif /* CONFIG_USE_MUTEXES */
+					#endif /* configUSE_MUTEXES */
 
 					if( listLIST_IS_EMPTY( &( pxQueue->xTasksWaitingToSend ) ) == pdFALSE )
 					{
@@ -1476,7 +1476,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 				else if( xEntryTimeSet == pdFALSE )
 				{
 					/* The queue was empty and a block time was specified so
-					CONFIG_ure the timeout structure. */
+					configure the timeout structure. */
 					vTaskSetTimeOutState( &xTimeOut );
 					xEntryTimeSet = pdTRUE;
 				}
@@ -1502,7 +1502,7 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 			{
 				traceBLOCKING_ON_QUEUE_RECEIVE( pxQueue );
 
-				#if ( CONFIG_USE_MUTEXES == 1 )
+				#if ( configUSE_MUTEXES == 1 )
 				{
 					if( pxQueue->uxQueueType == queueQUEUE_IS_MUTEX )
 					{
@@ -1554,17 +1554,17 @@ BaseType_t xReturn;
 UBaseType_t uxSavedInterruptStatus;
 Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 
-	CONFIG_ASSERT( pxQueue );
-	CONFIG_ASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
+	configASSERT( pxQueue );
+	configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
 
 	/* RTOS ports that support interrupt nesting have the concept of a maximum
 	system call (or maximum API call) interrupt priority.  Interrupts that are
 	above the maximum system call priority are kept permanently enabled, even
 	when the RTOS kernel is in a critical section, but cannot make any calls to
-	FreeRTOS API functions.  If CONFIG_ASSERT() is defined in FreeRTOSConfig.h
+	FreeRTOS API functions.  If configASSERT() is defined in FreeRTOSConfig.h
 	then portASSERT_IF_INTERRUPT_PRIORITY_INVALID() will result in an assertion
 	failure if a FreeRTOS API function is called from an interrupt that has been
-	assigned a priority above the CONFIG_ured maximum system call priority.
+	assigned a priority above the configured maximum system call priority.
 	Only FreeRTOS functions that end in FromISR can be called from interrupts
 	that have been assigned a priority at or (logically) below the maximum
 	system call	interrupt priority.  FreeRTOS maintains a separate interrupt
@@ -1642,18 +1642,18 @@ UBaseType_t uxSavedInterruptStatus;
 int8_t *pcOriginalReadPosition;
 Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 
-	CONFIG_ASSERT( pxQueue );
-	CONFIG_ASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
-	CONFIG_ASSERT( pxQueue->uxItemSize != 0 ); /* Can't peek a semaphore. */
+	configASSERT( pxQueue );
+	configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
+	configASSERT( pxQueue->uxItemSize != 0 ); /* Can't peek a semaphore. */
 
 	/* RTOS ports that support interrupt nesting have the concept of a maximum
 	system call (or maximum API call) interrupt priority.  Interrupts that are
 	above the maximum system call priority are kept permanently enabled, even
 	when the RTOS kernel is in a critical section, but cannot make any calls to
-	FreeRTOS API functions.  If CONFIG_ASSERT() is defined in FreeRTOSConfig.h
+	FreeRTOS API functions.  If configASSERT() is defined in FreeRTOSConfig.h
 	then portASSERT_IF_INTERRUPT_PRIORITY_INVALID() will result in an assertion
 	failure if a FreeRTOS API function is called from an interrupt that has been
-	assigned a priority above the CONFIG_ured maximum system call priority.
+	assigned a priority above the configured maximum system call priority.
 	Only FreeRTOS functions that end in FromISR can be called from interrupts
 	that have been assigned a priority at or (logically) below the maximum
 	system call	interrupt priority.  FreeRTOS maintains a separate interrupt
@@ -1693,7 +1693,7 @@ UBaseType_t uxQueueMessagesWaiting( const QueueHandle_t xQueue )
 {
 UBaseType_t uxReturn;
 
-	CONFIG_ASSERT( xQueue );
+	configASSERT( xQueue );
 
 	taskENTER_CRITICAL();
 	{
@@ -1711,7 +1711,7 @@ UBaseType_t uxReturn;
 Queue_t *pxQueue;
 
 	pxQueue = ( Queue_t * ) xQueue;
-	CONFIG_ASSERT( pxQueue );
+	configASSERT( pxQueue );
 
 	taskENTER_CRITICAL();
 	{
@@ -1727,7 +1727,7 @@ UBaseType_t uxQueueMessagesWaitingFromISR( const QueueHandle_t xQueue )
 {
 UBaseType_t uxReturn;
 
-	CONFIG_ASSERT( xQueue );
+	configASSERT( xQueue );
 
 	uxReturn = ( ( Queue_t * ) xQueue )->uxMessagesWaiting;
 
@@ -1739,10 +1739,10 @@ void vQueueDelete( QueueHandle_t xQueue )
 {
 Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 
-	CONFIG_ASSERT( pxQueue );
+	configASSERT( pxQueue );
 
 	traceQUEUE_DELETE( pxQueue );
-	#if ( CONFIG_QUEUE_REGISTRY_SIZE > 0 )
+	#if ( configQUEUE_REGISTRY_SIZE > 0 )
 	{
 		vQueueUnregisterQueue( pxQueue );
 	}
@@ -1751,34 +1751,34 @@ Queue_t * const pxQueue = ( Queue_t * ) xQueue;
 }
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_TRACE_FACILITY == 1 )
+#if ( configUSE_TRACE_FACILITY == 1 )
 
 	UBaseType_t uxQueueGetQueueNumber( QueueHandle_t xQueue )
 	{
 		return ( ( Queue_t * ) xQueue )->uxQueueNumber;
 	}
 
-#endif /* CONFIG_USE_TRACE_FACILITY */
+#endif /* configUSE_TRACE_FACILITY */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_TRACE_FACILITY == 1 )
+#if ( configUSE_TRACE_FACILITY == 1 )
 
 	void vQueueSetQueueNumber( QueueHandle_t xQueue, UBaseType_t uxQueueNumber )
 	{
 		( ( Queue_t * ) xQueue )->uxQueueNumber = uxQueueNumber;
 	}
 
-#endif /* CONFIG_USE_TRACE_FACILITY */
+#endif /* configUSE_TRACE_FACILITY */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_TRACE_FACILITY == 1 )
+#if ( configUSE_TRACE_FACILITY == 1 )
 
 	uint8_t ucQueueGetQueueType( QueueHandle_t xQueue )
 	{
 		return ( ( Queue_t * ) xQueue )->ucQueueType;
 	}
 
-#endif /* CONFIG_USE_TRACE_FACILITY */
+#endif /* configUSE_TRACE_FACILITY */
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue, const void *pvItemToQueue, const BaseType_t xPosition )
@@ -1787,7 +1787,7 @@ BaseType_t xReturn = pdFALSE;
 
 	if( pxQueue->uxItemSize == ( UBaseType_t ) 0 )
 	{
-		#if ( CONFIG_USE_MUTEXES == 1 )
+		#if ( configUSE_MUTEXES == 1 )
 		{
 			if( pxQueue->uxQueueType == queueQUEUE_IS_MUTEX )
 			{
@@ -1800,7 +1800,7 @@ BaseType_t xReturn = pdFALSE;
 				mtCOVERAGE_TEST_MARKER();
 			}
 		}
-		#endif /* CONFIG_USE_MUTEXES */
+		#endif /* configUSE_MUTEXES */
 	}
 	else if( xPosition == queueSEND_TO_BACK )
 	{
@@ -1888,7 +1888,7 @@ static void prvUnlockQueue( Queue_t * const pxQueue )
 		{
 			/* Data was posted while the queue was locked.  Are any tasks
 			blocked waiting for data to become available? */
-			#if ( CONFIG_USE_QUEUE_SETS == 1 )
+			#if ( configUSE_QUEUE_SETS == 1 )
 			{
 				if( pxQueue->pxQueueSetContainer != NULL )
 				{
@@ -1927,7 +1927,7 @@ static void prvUnlockQueue( Queue_t * const pxQueue )
 					}
 				}
 			}
-			#else /* CONFIG_USE_QUEUE_SETS */
+			#else /* configUSE_QUEUE_SETS */
 			{
 				/* Tasks that are removed from the event list will get added to
 				the pending ready list as the scheduler is still suspended. */
@@ -1949,7 +1949,7 @@ static void prvUnlockQueue( Queue_t * const pxQueue )
 					break;
 				}
 			}
-			#endif /* CONFIG_USE_QUEUE_SETS */
+			#endif /* configUSE_QUEUE_SETS */
 
 			--( pxQueue->xTxLock );
 		}
@@ -2013,7 +2013,7 @@ BaseType_t xQueueIsQueueEmptyFromISR( const QueueHandle_t xQueue )
 {
 BaseType_t xReturn;
 
-	CONFIG_ASSERT( xQueue );
+	configASSERT( xQueue );
 	if( ( ( Queue_t * ) xQueue )->uxMessagesWaiting == ( UBaseType_t ) 0 )
 	{
 		xReturn = pdTRUE;
@@ -2052,7 +2052,7 @@ BaseType_t xQueueIsQueueFullFromISR( const QueueHandle_t xQueue )
 {
 BaseType_t xReturn;
 
-	CONFIG_ASSERT( xQueue );
+	configASSERT( xQueue );
 	if( ( ( Queue_t * ) xQueue )->uxMessagesWaiting == ( ( Queue_t * ) xQueue )->uxLength )
 	{
 		xReturn = pdTRUE;
@@ -2066,7 +2066,7 @@ BaseType_t xReturn;
 } /*lint !e818 xQueue could not be pointer to const because it is a typedef. */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_CO_ROUTINES == 1 )
+#if ( configUSE_CO_ROUTINES == 1 )
 
 	BaseType_t xQueueCRSend( QueueHandle_t xQueue, const void *pvItemToQueue, TickType_t xTicksToWait )
 	{
@@ -2140,10 +2140,10 @@ BaseType_t xReturn;
 		return xReturn;
 	}
 
-#endif /* CONFIG_USE_CO_ROUTINES */
+#endif /* configUSE_CO_ROUTINES */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_CO_ROUTINES == 1 )
+#if ( configUSE_CO_ROUTINES == 1 )
 
 	BaseType_t xQueueCRReceive( QueueHandle_t xQueue, void *pvBuffer, TickType_t xTicksToWait )
 	{
@@ -2230,10 +2230,10 @@ BaseType_t xReturn;
 		return xReturn;
 	}
 
-#endif /* CONFIG_USE_CO_ROUTINES */
+#endif /* configUSE_CO_ROUTINES */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_CO_ROUTINES == 1 )
+#if ( configUSE_CO_ROUTINES == 1 )
 
 	BaseType_t xQueueCRSendFromISR( QueueHandle_t xQueue, const void *pvItemToQueue, BaseType_t xCoRoutinePreviouslyWoken )
 	{
@@ -2278,10 +2278,10 @@ BaseType_t xReturn;
 		return xCoRoutinePreviouslyWoken;
 	}
 
-#endif /* CONFIG_USE_CO_ROUTINES */
+#endif /* configUSE_CO_ROUTINES */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_CO_ROUTINES == 1 )
+#if ( configUSE_CO_ROUTINES == 1 )
 
 	BaseType_t xQueueCRReceiveFromISR( QueueHandle_t xQueue, void *pvBuffer, BaseType_t *pxCoRoutineWoken )
 	{
@@ -2338,10 +2338,10 @@ BaseType_t xReturn;
 		return xReturn;
 	}
 
-#endif /* CONFIG_USE_CO_ROUTINES */
+#endif /* configUSE_CO_ROUTINES */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_QUEUE_REGISTRY_SIZE > 0 )
+#if ( configQUEUE_REGISTRY_SIZE > 0 )
 
 	void vQueueAddToRegistry( QueueHandle_t xQueue, const char *pcQueueName ) /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
 	{
@@ -2349,7 +2349,7 @@ BaseType_t xReturn;
 
 		/* See if there is an empty space in the registry.  A NULL name denotes
 		a free slot. */
-		for( ux = ( UBaseType_t ) 0U; ux < ( UBaseType_t ) CONFIG_QUEUE_REGISTRY_SIZE; ux++ )
+		for( ux = ( UBaseType_t ) 0U; ux < ( UBaseType_t ) configQUEUE_REGISTRY_SIZE; ux++ )
 		{
 			if( xQueueRegistry[ ux ].pcQueueName == NULL )
 			{
@@ -2367,10 +2367,10 @@ BaseType_t xReturn;
 		}
 	}
 
-#endif /* CONFIG_QUEUE_REGISTRY_SIZE */
+#endif /* configQUEUE_REGISTRY_SIZE */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_QUEUE_REGISTRY_SIZE > 0 )
+#if ( configQUEUE_REGISTRY_SIZE > 0 )
 
 	void vQueueUnregisterQueue( QueueHandle_t xQueue )
 	{
@@ -2378,7 +2378,7 @@ BaseType_t xReturn;
 
 		/* See if the handle of the queue being unregistered in actually in the
 		registry. */
-		for( ux = ( UBaseType_t ) 0U; ux < ( UBaseType_t ) CONFIG_QUEUE_REGISTRY_SIZE; ux++ )
+		for( ux = ( UBaseType_t ) 0U; ux < ( UBaseType_t ) configQUEUE_REGISTRY_SIZE; ux++ )
 		{
 			if( xQueueRegistry[ ux ].xHandle == xQueue )
 			{
@@ -2394,10 +2394,10 @@ BaseType_t xReturn;
 
 	} /*lint !e818 xQueue could not be pointer to const because it is a typedef. */
 
-#endif /* CONFIG_QUEUE_REGISTRY_SIZE */
+#endif /* configQUEUE_REGISTRY_SIZE */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_TIMERS == 1 )
+#if ( configUSE_TIMERS == 1 )
 
 	void vQueueWaitForMessageRestricted( QueueHandle_t xQueue, TickType_t xTicksToWait, const BaseType_t xWaitIndefinitely )
 	{
@@ -2430,10 +2430,10 @@ BaseType_t xReturn;
 		prvUnlockQueue( pxQueue );
 	}
 
-#endif /* CONFIG_USE_TIMERS */
+#endif /* configUSE_TIMERS */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_QUEUE_SETS == 1 )
+#if ( configUSE_QUEUE_SETS == 1 )
 
 	QueueSetHandle_t xQueueCreateSet( const UBaseType_t uxEventQueueLength )
 	{
@@ -2444,10 +2444,10 @@ BaseType_t xReturn;
 		return pxQueue;
 	}
 
-#endif /* CONFIG_USE_QUEUE_SETS */
+#endif /* configUSE_QUEUE_SETS */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_QUEUE_SETS == 1 )
+#if ( configUSE_QUEUE_SETS == 1 )
 
 	BaseType_t xQueueAddToSet( QueueSetMemberHandle_t xQueueOrSemaphore, QueueSetHandle_t xQueueSet )
 	{
@@ -2477,10 +2477,10 @@ BaseType_t xReturn;
 		return xReturn;
 	}
 
-#endif /* CONFIG_USE_QUEUE_SETS */
+#endif /* configUSE_QUEUE_SETS */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_QUEUE_SETS == 1 )
+#if ( configUSE_QUEUE_SETS == 1 )
 
 	BaseType_t xQueueRemoveFromSet( QueueSetMemberHandle_t xQueueOrSemaphore, QueueSetHandle_t xQueueSet )
 	{
@@ -2513,10 +2513,10 @@ BaseType_t xReturn;
 		return xReturn;
 	} /*lint !e818 xQueueSet could not be declared as pointing to const as it is a typedef. */
 
-#endif /* CONFIG_USE_QUEUE_SETS */
+#endif /* configUSE_QUEUE_SETS */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_QUEUE_SETS == 1 )
+#if ( configUSE_QUEUE_SETS == 1 )
 
 	QueueSetMemberHandle_t xQueueSelectFromSet( QueueSetHandle_t xQueueSet, TickType_t const xTicksToWait )
 	{
@@ -2526,10 +2526,10 @@ BaseType_t xReturn;
 		return xReturn;
 	}
 
-#endif /* CONFIG_USE_QUEUE_SETS */
+#endif /* configUSE_QUEUE_SETS */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_QUEUE_SETS == 1 )
+#if ( configUSE_QUEUE_SETS == 1 )
 
 	QueueSetMemberHandle_t xQueueSelectFromSetFromISR( QueueSetHandle_t xQueueSet )
 	{
@@ -2539,10 +2539,10 @@ BaseType_t xReturn;
 		return xReturn;
 	}
 
-#endif /* CONFIG_USE_QUEUE_SETS */
+#endif /* configUSE_QUEUE_SETS */
 /*-----------------------------------------------------------*/
 
-#if ( CONFIG_USE_QUEUE_SETS == 1 )
+#if ( configUSE_QUEUE_SETS == 1 )
 
 	static BaseType_t prvNotifyQueueSetContainer( const Queue_t * const pxQueue, const BaseType_t xCopyPosition )
 	{
@@ -2551,8 +2551,8 @@ BaseType_t xReturn;
 
 		/* This function must be called form a critical section. */
 
-		CONFIG_ASSERT( pxQueueSetContainer );
-		CONFIG_ASSERT( pxQueueSetContainer->uxMessagesWaiting < pxQueueSetContainer->uxLength );
+		configASSERT( pxQueueSetContainer );
+		configASSERT( pxQueueSetContainer->uxMessagesWaiting < pxQueueSetContainer->uxLength );
 
 		if( pxQueueSetContainer->uxMessagesWaiting < pxQueueSetContainer->uxLength )
 		{
@@ -2593,7 +2593,7 @@ BaseType_t xReturn;
 		return xReturn;
 	}
 
-#endif /* CONFIG_USE_QUEUE_SETS */
+#endif /* configUSE_QUEUE_SETS */
 
 
 

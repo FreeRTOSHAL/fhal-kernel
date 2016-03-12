@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -299,7 +299,7 @@ void vCoRoutineSchedule( void );
  *
  * @param xTickToDelay The number of ticks that the co-routine should delay
  * for.  The actual amount of time this equates to is defined by
- * CONFIG_TICK_RATE_HZ (set in FreeRTOSConfig.h).  The constant portTICK_PERIOD_MS
+ * configTICK_RATE_HZ (set in FreeRTOSConfig.h).  The constant portTICK_PERIOD_MS
  * can be used to convert ticks to milliseconds.
  *
  * Example usage:
@@ -375,7 +375,7 @@ void vCoRoutineSchedule( void );
  * @param xTickToDelay The number of ticks that the co-routine should block
  * to wait for space to become available on the queue, should space not be
  * available immediately. The actual amount of time this equates to is defined
- * by CONFIG_TICK_RATE_HZ (set in FreeRTOSConfig.h).  The constant
+ * by configTICK_RATE_HZ (set in FreeRTOSConfig.h).  The constant
  * portTICK_PERIOD_MS can be used to convert ticks to milliseconds (see example
  * below).
  *
@@ -473,7 +473,7 @@ void vCoRoutineSchedule( void );
  * @param xTickToDelay The number of ticks that the co-routine should block
  * to wait for data to become available from the queue, should data not be
  * available immediately. The actual amount of time this equates to is defined
- * by CONFIG_TICK_RATE_HZ (set in FreeRTOSConfig.h).  The constant
+ * by configTICK_RATE_HZ (set in FreeRTOSConfig.h).  The constant
  * portTICK_PERIOD_MS can be used to convert ticks to milliseconds (see the
  * crQUEUE_SEND example).
  *

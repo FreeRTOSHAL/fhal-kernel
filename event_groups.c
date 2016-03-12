@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -70,10 +70,10 @@
 /* Standard includes. */
 #include <stdlib.h>
 
-/* Defining MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE prevents task.h from redefining
+/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
 task.h is included from an application file. */
-#define MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -82,23 +82,23 @@ task.h is included from an application file. */
 #include "event_groups.h"
 
 /* Lint e961 and e750 are suppressed as a MISRA exception justified because the
-MPU ports require MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE to be defined for the
+MPU ports require MPU_WRAPPERS_INCLUDED_FROM_API_FILE to be defined for the
 header files above, but not in this file, in order to generate the correct
 privileged Vs unprivileged linkage and placement. */
-#undef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE /*lint !e961 !e750. */
+#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE /*lint !e961 !e750. */
 
-#if ( CONFIG_INCLUDE_xEventGroupSetBitFromISR == 1 ) && ( CONFIG_USE_TIMERS == 0 )
-	#error CONFIG_USE_TIMERS must be set to 1 to make the xEventGroupSetBitFromISR() function available.
+#if ( INCLUDE_xEventGroupSetBitFromISR == 1 ) && ( configUSE_TIMERS == 0 )
+	#error configUSE_TIMERS must be set to 1 to make the xEventGroupSetBitFromISR() function available.
 #endif
 
-#if ( CONFIG_INCLUDE_xEventGroupSetBitFromISR == 1 ) && ( CONFIG_INCLUDE_xTimerPendFunctionCall == 0 )
-	#error CONFIG_INCLUDE_xTimerPendFunctionCall must also be set to one to make the xEventGroupSetBitFromISR() function available.
+#if ( INCLUDE_xEventGroupSetBitFromISR == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 0 )
+	#error INCLUDE_xTimerPendFunctionCall must also be set to one to make the xEventGroupSetBitFromISR() function available.
 #endif
 
 /* The following bit fields convey control information in a task's event list
 item value.  It is important they don't clash with the
 taskEVENT_LIST_ITEM_VALUE_IN_USE definition. */
-#if CONFIG_USE_16_BIT_TICKS == 1
+#if configUSE_16_BIT_TICKS == 1
 	#define eventCLEAR_EVENTS_ON_EXIT_BIT	0x0100U
 	#define eventUNBLOCKED_DUE_TO_BIT_SET	0x0200U
 	#define eventWAIT_FOR_ALL_BITS			0x0400U
@@ -115,7 +115,7 @@ typedef struct xEventGroupDefinition
 	EventBits_t uxEventBits;
 	List_t xTasksWaitingForBits;		/*< List of tasks waiting for a bit to be set. */
 
-	#if( CONFIG_USE_TRACE_FACILITY == 1 )
+	#if( configUSE_TRACE_FACILITY == 1 )
 		UBaseType_t uxEventGroupNumber;
 	#endif
 
@@ -162,11 +162,11 @@ EventGroup_t *pxEventBits = ( EventGroup_t * ) xEventGroup;
 BaseType_t xAlreadyYielded;
 BaseType_t xTimeoutOccurred = pdFALSE;
 
-	CONFIG_ASSERT( ( uxBitsToWaitFor & eventEVENT_BITS_CONTROL_BYTES ) == 0 );
-	CONFIG_ASSERT( uxBitsToWaitFor != 0 );
-	#if ( ( CONFIG_INCLUDE_xTaskGetSchedulerState == 1 ) || ( CONFIG_USE_TIMERS == 1 ) )
+	configASSERT( ( uxBitsToWaitFor & eventEVENT_BITS_CONTROL_BYTES ) == 0 );
+	configASSERT( uxBitsToWaitFor != 0 );
+	#if ( ( INCLUDE_xTaskGetSchedulerState == 1 ) || ( configUSE_TIMERS == 1 ) )
 	{
-		CONFIG_ASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED ) && ( xTicksToWait != 0 ) ) );
+		configASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED ) && ( xTicksToWait != 0 ) ) );
 	}
 	#endif
 
@@ -280,12 +280,12 @@ BaseType_t xTimeoutOccurred = pdFALSE;
 
 	/* Check the user is not attempting to wait on the bits used by the kernel
 	itself, and that at least one bit is being requested. */
-	CONFIG_ASSERT( xEventGroup );
-	CONFIG_ASSERT( ( uxBitsToWaitFor & eventEVENT_BITS_CONTROL_BYTES ) == 0 );
-	CONFIG_ASSERT( uxBitsToWaitFor != 0 );
-	#if ( ( CONFIG_INCLUDE_xTaskGetSchedulerState == 1 ) || ( CONFIG_USE_TIMERS == 1 ) )
+	configASSERT( xEventGroup );
+	configASSERT( ( uxBitsToWaitFor & eventEVENT_BITS_CONTROL_BYTES ) == 0 );
+	configASSERT( uxBitsToWaitFor != 0 );
+	#if ( ( INCLUDE_xTaskGetSchedulerState == 1 ) || ( configUSE_TIMERS == 1 ) )
 	{
-		CONFIG_ASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED ) && ( xTicksToWait != 0 ) ) );
+		configASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED ) && ( xTicksToWait != 0 ) ) );
 	}
 	#endif
 
@@ -426,8 +426,8 @@ EventBits_t uxReturn;
 
 	/* Check the user is not attempting to clear the bits used by the kernel
 	itself. */
-	CONFIG_ASSERT( xEventGroup );
-	CONFIG_ASSERT( ( uxBitsToClear & eventEVENT_BITS_CONTROL_BYTES ) == 0 );
+	configASSERT( xEventGroup );
+	configASSERT( ( uxBitsToClear & eventEVENT_BITS_CONTROL_BYTES ) == 0 );
 
 	taskENTER_CRITICAL();
 	{
@@ -446,7 +446,7 @@ EventBits_t uxReturn;
 }
 /*-----------------------------------------------------------*/
 
-#if ( ( CONFIG_USE_TRACE_FACILITY == 1 ) && ( CONFIG_INCLUDE_xTimerPendFunctionCall == 1 ) && ( CONFIG_USE_TIMERS == 1 ) )
+#if ( ( configUSE_TRACE_FACILITY == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) )
 
 	BaseType_t xEventGroupClearBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToClear )
 	{
@@ -488,8 +488,8 @@ BaseType_t xMatchFound = pdFALSE;
 
 	/* Check the user is not attempting to set the bits used by the kernel
 	itself. */
-	CONFIG_ASSERT( xEventGroup );
-	CONFIG_ASSERT( ( uxBitsToSet & eventEVENT_BITS_CONTROL_BYTES ) == 0 );
+	configASSERT( xEventGroup );
+	configASSERT( ( uxBitsToSet & eventEVENT_BITS_CONTROL_BYTES ) == 0 );
 
 	pxList = &( pxEventBits->xTasksWaitingForBits );
 	pxListEnd = listGET_END_MARKER( pxList ); /*lint !e826 !e740 The mini list structure is used as the list end to save RAM.  This is checked and valid. */
@@ -584,7 +584,7 @@ const List_t *pxTasksWaitingForBits = &( pxEventBits->xTasksWaitingForBits );
 		{
 			/* Unblock the task, returning 0 as the event list is being deleted
 			and	cannot therefore have any bits set. */
-			CONFIG_ASSERT( pxTasksWaitingForBits->xListEnd.pxNext != ( ListItem_t * ) &( pxTasksWaitingForBits->xListEnd ) );
+			configASSERT( pxTasksWaitingForBits->xListEnd.pxNext != ( ListItem_t * ) &( pxTasksWaitingForBits->xListEnd ) );
 			( void ) xTaskRemoveFromUnorderedEventList( pxTasksWaitingForBits->xListEnd.pxNext, eventUNBLOCKED_DUE_TO_BIT_SET );
 		}
 
@@ -645,7 +645,7 @@ BaseType_t xWaitConditionMet = pdFALSE;
 }
 /*-----------------------------------------------------------*/
 
-#if ( ( CONFIG_USE_TRACE_FACILITY == 1 ) && ( CONFIG_INCLUDE_xTimerPendFunctionCall == 1 ) && ( CONFIG_USE_TIMERS == 1 ) )
+#if ( ( configUSE_TRACE_FACILITY == 1 ) && ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 1 ) )
 
 	BaseType_t xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet, BaseType_t *pxHigherPriorityTaskWoken )
 	{
@@ -660,7 +660,7 @@ BaseType_t xWaitConditionMet = pdFALSE;
 #endif
 /*-----------------------------------------------------------*/
 
-#if (CONFIG_USE_TRACE_FACILITY == 1)
+#if (configUSE_TRACE_FACILITY == 1)
 
 	UBaseType_t uxEventGroupGetNumber( void* xEventGroup )
 	{

@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -77,15 +77,15 @@
  */
 #include <stdlib.h>
 
-/* Defining MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE prevents task.h from redefining
+/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
 task.h is included from an application file. */
-#define MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#undef MPU_WRAPPERS_CONFIG_INCLUDED_FROM_API_FILE
+#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 /* Block sizes must not get too small. */
 #define heapMINIMUM_BLOCK_SIZE	( ( size_t ) ( xHeapStructSize << 1 ) )
@@ -94,13 +94,13 @@ task.h is included from an application file. */
 #define heapBITS_PER_BYTE		( ( size_t ) 8 )
 
 /* Allocate the memory for the heap. */
-#if( CONFIG_APPLICATION_ALLOCATED_HEAP == 1 )
+#if( configAPPLICATION_ALLOCATED_HEAP == 1 )
 	/* The application writer has already defined the array used for the RTOS
 	heap - probably so it can be placed in a special segment or address. */
-	extern uint8_t ucHeap[ CONFIG_TOTAL_HEAP_SIZE ];
+	extern uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 #else
-	static uint8_t ucHeap[ CONFIG_TOTAL_HEAP_SIZE ];
-#endif /* CONFIG_APPLICATION_ALLOCATED_HEAP */
+	static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+#endif /* configAPPLICATION_ALLOCATED_HEAP */
 
 /* Define the linked list structure.  This is used to link free blocks in order
 of their memory address. */
@@ -184,7 +184,7 @@ void *pvReturn = NULL;
 				{
 					/* Byte alignment required. */
 					xWantedSize += ( portBYTE_ALIGNMENT - ( xWantedSize & portBYTE_ALIGNMENT_MASK ) );
-					CONFIG_ASSERT( ( xWantedSize & portBYTE_ALIGNMENT_MASK ) == 0 );
+					configASSERT( ( xWantedSize & portBYTE_ALIGNMENT_MASK ) == 0 );
 				}
 				else
 				{
@@ -229,7 +229,7 @@ void *pvReturn = NULL;
 						cast is used to prevent byte alignment warnings from the
 						compiler. */
 						pxNewBlockLink = ( void * ) ( ( ( uint8_t * ) pxBlock ) + xWantedSize );
-						CONFIG_ASSERT( ( ( ( size_t ) pxNewBlockLink ) & portBYTE_ALIGNMENT_MASK ) == 0 );
+						configASSERT( ( ( ( size_t ) pxNewBlockLink ) & portBYTE_ALIGNMENT_MASK ) == 0 );
 
 						/* Calculate the sizes of two blocks split from the
 						single block. */
@@ -279,7 +279,7 @@ void *pvReturn = NULL;
 	}
 	( void ) xTaskResumeAll();
 
-	#if( CONFIG_USE_MALLOC_FAILED_HOOK == 1 )
+	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
 	{
 		if( pvReturn == NULL )
 		{
@@ -293,7 +293,7 @@ void *pvReturn = NULL;
 	}
 	#endif
 
-	CONFIG_ASSERT( ( ( ( uint32_t ) pvReturn ) & portBYTE_ALIGNMENT_MASK ) == 0 );
+	configASSERT( ( ( ( uint32_t ) pvReturn ) & portBYTE_ALIGNMENT_MASK ) == 0 );
 	return pvReturn;
 }
 /*-----------------------------------------------------------*/
@@ -313,8 +313,8 @@ BlockLink_t *pxLink;
 		pxLink = ( void * ) puc;
 
 		/* Check the block is actually allocated. */
-		CONFIG_ASSERT( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 );
-		CONFIG_ASSERT( pxLink->pxNextFreeBlock == NULL );
+		configASSERT( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 );
+		configASSERT( pxLink->pxNextFreeBlock == NULL );
 
 		if( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 )
 		{
@@ -369,7 +369,7 @@ static void prvHeapInit( void )
 BlockLink_t *pxFirstFreeBlock;
 uint8_t *pucAlignedHeap;
 size_t uxAddress;
-size_t xTotalHeapSize = CONFIG_TOTAL_HEAP_SIZE;
+size_t xTotalHeapSize = configTOTAL_HEAP_SIZE;
 
 	/* Ensure the heap starts on a correctly aligned boundary. */
 	uxAddress = ( size_t ) ucHeap;

@@ -38,7 +38,7 @@
 
     http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
     the FAQ page "My application does not run, what could be wrong?".  Have you
-    defined CONFIG_ASSERT()?
+    defined configASSERT()?
 
     http://www.FreeRTOS.org/support - In return for receiving this top quality
     embedded software for free we request you assist our global community by
@@ -202,7 +202,7 @@ typedef QueueHandle_t SemaphoreHandle_t;
  * available.  The macro portTICK_PERIOD_MS can be used to convert this to a
  * real time.  A block time of zero can be used to poll the semaphore.  A block
  * time of portMAX_DELAY can be used to block indefinitely (provided
- * CONFIG_INCLUDE_vTaskSuspend is set to 1 in FreeRTOSConfig.h).
+ * INCLUDE_vTaskSuspend is set to 1 in FreeRTOSConfig.h).
  *
  * @return pdTRUE if the semaphore was obtained.  pdFALSE
  * if xBlockTime expired without the semaphore becoming available.
@@ -262,7 +262,7 @@ typedef QueueHandle_t SemaphoreHandle_t;
  * The mutex must have previously been created using a call to
  * xSemaphoreCreateRecursiveMutex();
  *
- * CONFIG_USE_RECURSIVE_MUTEXES must be set to 1 in FreeRTOSConfig.h for this
+ * configUSE_RECURSIVE_MUTEXES must be set to 1 in FreeRTOSConfig.h for this
  * macro to be available.
  *
  * This macro must not be used on mutexes created using xSemaphoreCreateMutex().
@@ -430,7 +430,7 @@ typedef QueueHandle_t SemaphoreHandle_t;
  * The mutex must have previously been created using a call to
  * xSemaphoreCreateRecursiveMutex();
  *
- * CONFIG_USE_RECURSIVE_MUTEXES must be set to 1 in FreeRTOSConfig.h for this
+ * configUSE_RECURSIVE_MUTEXES must be set to 1 in FreeRTOSConfig.h for this
  * macro to be available.
  *
  * This macro must not be used on mutexes created using xSemaphoreCreateMutex().
