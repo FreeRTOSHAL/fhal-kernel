@@ -72,7 +72,7 @@
  * Config Transofrmation
  */
 
-#if defined(CONFIG_TOTAL_HEAP_SIZE) && defined(CONFIG_HEAP_1) && defined(CONFIG_HEAP_2) && defined(CONFIG_HEAP_4)
+#if defined(CONFIG_TOTAL_HEAP_SIZE) && (defined(CONFIG_HEAP_1) || defined(CONFIG_HEAP_2) || defined(CONFIG_HEAP_4))
 # if (CONFIG_TOTAL_HEAP_SIZE == 0)
 #  error "Heap Size == 0"
 # else
