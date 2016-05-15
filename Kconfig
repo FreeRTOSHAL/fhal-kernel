@@ -159,7 +159,7 @@ menu "Basic Settings"
 			HEAP Size
 	config USE_MALLOC_FAILED_HOOK
 		bool "Use Malloc Failed Hook"
-		default y
+		default n
 		help 
 			The kernel uses a call to pvPortMalloc() to allocate memory from the heap each time a task, queue or semaphore is created.
 			The official FreeRTOS download includes four sample memory allocation schemes for this purpose. The schemes are implemented 
