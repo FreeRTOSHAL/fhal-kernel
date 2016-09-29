@@ -186,6 +186,10 @@ menu "Basic Settings"
 			bool "Default CONFIG_ASSERT Macro"
 			help 
 				#define CONFIG_ASSERT(x) do{if(x) {taskDISABLE_INTERRUPTS(); for(;;);}while(0)
+		config ASSERT_DEFAULT_PRINT
+			bool "Default CONFIG_ASSERT Macro with printf"
+			help 
+				Print Failed Asserts
 		config ASSERT_USER_DEFINED
 			bool "User Defined CONFIG_ASSERT Macro"
 			select INCLUDE_USER_FREERTOS_CONFIG

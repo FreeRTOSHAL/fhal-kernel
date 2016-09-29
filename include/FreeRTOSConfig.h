@@ -27,7 +27,7 @@
 #endif
 #ifdef CONFIG_ASSERT_DEFAULT
 /* 
- * __builtin_expect GCC Optimization 
+ * __builtin_expect GCC Optimization
  * 
  * Add Branch prediction information assert should always not x
  */
@@ -42,7 +42,23 @@
 #ifdef CONFIG_ASSERT_USER_DEFINED
 # define configASSERT(x) ASSERT_USER(x)
 #endif
-# define CONFIG_ASSERT(x) configASSERT(x)
+#ifdef CONFIG_ASSERT_DEFAULT_PRINT
+/* 
+ * __builtin_expect GCC Optimization
+ * 
+ * Add Branch prediction information assert should always not x
+ */
+# include <stdio.h>
+# define configASSERT(x) \
+	do{ \
+		if(__builtin_expect(!(x), 0)) { \
+			printf("ASSERT FAILT: %s File: %s Line: %d Function: %s\n", #x, __FILE__, __LINE__, __FUNCTION__); \
+			portDISABLE_INTERRUPTS(); \
+			for(;;); \
+		} \
+	}while(0)
+#endif
+#define CONFIG_ASSERT(x) configASSERT(x)
 
 #ifdef CONFIG_CHECK_STACK_OVERFLOW
 # ifdef CONFIG_CHECK_FOR_STACK_OVERFLOW_1
