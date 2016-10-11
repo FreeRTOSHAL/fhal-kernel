@@ -25,6 +25,12 @@
 #ifdef CONFIG_INCLUDE_USER_FREERTOS_CONFIG
 # include <FreeRTOSConfigUser.h>
 #endif
+#ifdef CONFIG_USER_ERROR_FUNCTION
+void userErrorHandler();
+#define USER_ERROR_HANDLER() userErrorHandler()
+#else
+#define USER_ERROR_HANDLER()
+#endif
 #ifdef CONFIG_ASSERT_DEFAULT
 /* 
  * __builtin_expect GCC Optimization
@@ -34,6 +40,7 @@
 # define configASSERT(x) \
 	do{ \
 		if(__builtin_expect(!(x), 0)) { \
+			USER_ERROR_HANDLER(); \
 			portDISABLE_INTERRUPTS(); \
 			for(;;); \
 		} \
@@ -53,6 +60,7 @@
 	do{ \
 		if(__builtin_expect(!(x), 0)) { \
 			printf("ASSERT FAILT: %s File: %s Line: %d Function: %s\n", #x, __FILE__, __LINE__, __FUNCTION__); \
+			USER_ERROR_HANDLER(); \
 			portDISABLE_INTERRUPTS(); \
 			for(;;); \
 		} \
