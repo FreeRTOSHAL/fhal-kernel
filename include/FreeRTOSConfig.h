@@ -401,6 +401,21 @@ void userErrorHandler();
 #else
 # define configMAX_CO_ROUTINE_PRIORITIES 0
 #endif
+#ifdef CONFIG_SUPPORT_DYNAMIC_ALLOCATION
+# define configSUPPORT_DYNAMIC_ALLOCATION 1
+#else
+# define configSUPPORT_DYNAMIC_ALLOCATION 0
+#endif
+#ifdef CONFIG_SUPPORT_STATIC_ALLOCATION
+# define configSUPPORT_STATIC_ALLOCATION 1
+#else
+# define configSUPPORT_STATIC_ALLOCATION 0
+#endif
+#ifdef CONFIG_APPLICATION_ALLOCATED_HEAP
+# define configAPPLICATION_ALLOCATED_HEAP 1
+#else
+# define configAPPLICATION_ALLOCATED_HEAP 0
+#endif
 /*
  * Arch configs
  */

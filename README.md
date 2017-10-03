@@ -1,7 +1,7 @@
 FreeRTOS Kernel of FreeROTS HAL
 ================================
 
-This is the FreeROTS V8.2.3 Kernel. This repo contains the kernel. 
+This is the FreeROTS V9.000 Kernel. This repo contains the kernel. 
 
 FreeRTOS, FreeRTOS.org and the FreeRTOS logo are trademarks of Real Time Engineers Ltd. 
 

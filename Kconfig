@@ -1,179 +1,220 @@
+#Help Pages: Copyright by Real Time Engineers Ltd. orginal from: http://www.freertos.org/
 menu "FreeRTOS"
 menu "Basic Settings"
-	choice
-		prompt "Used Heap Implemenation"
-		help 
-			FreeRTOS offers several heap management schemes that range in complexity and features - the simplest of which can sometimes 
-			even meet the requirements of applications that, for safety reasons, do not permit dynamic memory allocation at all.
-
-			It is also possible to provide your own heap implementation, and even to use two heap implementations simultaneously. Using 
-			two heap implementations simultaneously permits task stacks and other RTOS objects to be placed in fast internal RAM, and 
-			application data to be placed in slower external RAM.
-
-			The RTOS kernel allocates RAM each time a task, queue, mutex, software timer, semaphore or event group is created. The 
-			standard C library malloc() and free() functions can sometimes be used for this purpose, but ...
-
-			1. they are not always available on embedded systems,
-			2. they take up valuable code space,
-			3. they are not thread safe, and
-			4. they are not deterministic (the amount of time taken to execute the function will differ from call to call)
-
-			... so more often than not an alternative memory allocation implementation is required.
-			One embedded / real time system can have very different RAM and timing requirements to another - so a single RAM allocation 
-			algorithm will only ever be appropriate for a subset of applications.
-
-			To get around this problem, FreeRTOS keeps the memory allocation API in its portable layer. The portable layer is outside 
-			of the source files that implement the core RTOS functionality, allowing an application specific implementation appropriate 
-			for the real time system being developed to be provided. When the RTOS kernel requires RAM, instead of calling malloc(), it 
-			instead calls pvPortMalloc(). When RAM is being freed, instead of calling free(), the RTOS kernel calls vPortFree().
-
-	config HEAP_1
-		bool "Heap 1"
-		help
-			This is the simplest implementation of all. It does not permit memory to be freed once it has been allocated. Despite this, 
-			heap_1.c is appropriate for a large number of embedded applications. This is because the majority of deeply embedded 
-			applications create all the tasks, queues, semaphores, etc. required when the system boots, and then use all of these 
-			objects for the lifetime of program (until the application is switched off again, or is rebooted). Nothing ever gets 
-			deleted.
-			The implementation simply subdivides a single array into smaller blocks as RAM is requested. The total size of the 
-			array (the total size of the heap) is set by configTOTAL_HEAP_SIZE - which is defined in FreeRTOSConfig.h.
-
-			The xPortGetFreeHeapSize() API function returns the total amount of heap space that remains unallocated, allowing the 
-			configTOTAL_HEAP_SIZE setting to be optimised.
-
-			The heap_1 implementation:
-
-			- Can be used if your application never deletes a task, queue, semaphore, mutex, etc. (which actually covers the majority 
-			  of applications in which FreeRTOS gets used).
-			- Is always deterministic (always takes the same amount of time to execute) and cannot result in memory fragmentation.
-			- Is very simple and allocated memory from a statically allocated array, meaning it is often suitable for use in 
-			  applications that do not permit true dynamic memory allocation.
-	config HEAP_2
-		bool "Heap 2"
-		help
-			This scheme uses a best fit algorithm and, unlike scheme 1, allows previously allocated blocks to be freed. It does not 
-			however combine adjacent free blocks into a single large block (it does not include a coalescence algorithm - see 
-			heap_4.c for an implementation that does coalescence free blocks).
-			The total amount of available heap space is set by configTOTAL_HEAP_SIZE - which is defined in FreeRTOSConfig.h.
-
-			The xPortGetFreeHeapSize() API function returns the total amount of heap space that remains unallocated (allowing the 
-			configTOTAL_HEAP_SIZE setting to be optimised), but does not provided information on how the unallocated memory 
-			is fragmented into smaller blocks.
-
-			This implementation:
-			- Can be used even when the application repeatedly deletes tasks, queues, semaphores, mutexes, etc., with the caveat 
-			  below regarding memory fragmentation.
-			- Should not be used if the memory being allocated and freed is of a random size. For example:
-			  - If an application dynamically creates and deletes tasks, and the size of the stack allocated to the tasks being 
-			    created is always the same, then heap2.c can be used in most cases. However, if the size of the stack allocated to 
-			    the tasks being created was not always the same, then the available free memory might become fragmented into many 
-			    small blocks, eventually resulting in allocation failures. heap_4.c would be a better choise in this case.
-			  - If an application dynamically creates and deletes queues, and the queue storage area is the same in each case (the 
-			    queue storage area is the queue item size multiplied by the length of the queue), then heap_2.c can be used in 
-			    most cases. However, if the queue storage area were not the same in each case, then the available free memory might 
-			    become fragmented into many small blocks, eventually resulting in allocation failures. heap_4.c would be a better 
-			    choise in this case.
-			  - The application called pvPortMalloc() and vPortFree() directly, rather than just indirectly through other FreeRTOS 
-			    API functions.
-			- Could possible result in memory fragmentation problems if your application queues, tasks, semaphores, mutexes, etc. 
-			  in an unpredictable order. This would be unlikely for nearly all applications but should be kept in mind.
-			- not deterministic - but is much more efficient that most standard C library malloc implementations.
-			heap_2.c is suitable for most small real time systems that have to dynamically create tasks.
-	config HEAP_3
-		bool "Heap 3"
-		depends on MACH_HAS_MALLOC || NEWLIB_MALLOC
-		help 
-			This implements a simple wrapper for the standard C library malloc() and free() functions that will, in most cases, be 
-			supplied with your chosen compiler. The wrapper simply makes the malloc() and free() functions thread safe.
-			This implementation:
-			- Requires the linker to setup a heap, and the compiler library to provide malloc() and free() implementations.
-			- Is not deterministic.
-			- Will probably considerably increase the RTOS kernel code size.
-			Note that the configTOTAL_HEAP_SIZE setting in FreeRTOSConfig.h has no effect when heap_3 is used.
-	config HEAP_4
-		bool "Heap 4"
-		help
-			This scheme uses a first fit algorithm and, unlike scheme 2, it does combine adjacent free memory blocks into a single 
-			large block (it does include a coalescence algorithm).
-			The total amount of available heap space is set by configTOTAL_HEAP_SIZE - which is defined in FreeRTOSConfig.h.
-
-			The xPortGetFreeHeapSize() API function returns the total amount of heap space that remains unallocated (allowing the 
-			configTOTAL_HEAP_SIZE setting to be optimised), but does not provided information on how the unallocated memory is 
-			fragmented into smaller blocks.
-
-			This implementation:
-			- Can be used even when the application repeatedly deletes tasks, queues, semaphores, mutexes, etc..
-			- Is much less likely than the heap_2 implementation to result in a heap space that is badly fragmented into multiple 
-			  small blocks - even when the memory being allocated and freed is of random size.
-			- Is not deterministic - but is much more efficient that most standard C library malloc implementations.
-			  heap_4.c is particularly useful for applications that want to use the portable layer memory allocation schemes 
-			  directly in the application code (rather than just indirectly by calling API functions that themselves call 
-			  pvPortMalloc() and vPortFree()).
-			If you need to place the heap at a specific memory address then set configAPPLICATION_ALLOCATED_HEAP to 1 in 
-			FreeRTOSConfig.h, and declare an array called ucHeap[]. For example, using IAR/MSP430 syntax, the following code will 
-			place the array from which heap memory is obtained at address 0x4000.
-
-			#pragma location=0x4000
-			uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
-	config HEAP_5
-		bool "Heap 5"
-		help 
-			This scheme uses the same first fit and memory coalescence algorithms as heap_4, and allows the heap to span multiple 
-			non adjacent (non-contiguous) memory regions.
-			Heap_5 is initialised by calling vPortDefineHeapRegions(), and cannot be used until after vPortDefineHeapRegions() 
-			has executed. Creating an RTOS object (task, queue, semaphore, etc.) will implicitly call pvPortMalloc() so it is 
-			essential that, when using heap_5, vPortDefineHeapRegions() is called before the creation of any such object.
-
-			vPortDefineHeapRegions() takes a single parameter. The parameter is an array of HeapRegion_t structures. HeapRegion_t is 
-			defined in portable.h as
-				typedef struct HeapRegion
-				{
-					/* Start address of a block of memory that will be part of the heap.*/
-					uint8_t *pucStartAddress;
-
-					/* Size of the block of memory. */
-					size_t xSizeInBytes;
-				} HeapRegion_t;
-			The array is terminated using a NULL zero sized region definition, and the memory regions defined in the array must 
-			appear in address order, from low address to high address. The following source code snippets provide an example. 
-			The MSVC Win32 simulator demo also uses heap_5 so can be used as a reference.
-				/* Allocate two blocks of RAM for use by the heap.  The first is a block of 
-				0x10000 bytes starting from address 0x80000000, and the second a block of 
-				0xa0000 bytes starting from address 0x90000000.  The block starting at 
-				0x80000000 has the lower start address so appears in the array fist. */
-				const HeapRegion_t xHeapRegions[] =
-				{
-					{ ( uint8_t * ) 0x80000000UL, 0x10000 },
-					{ ( uint8_t * ) 0x90000000UL, 0xa0000 },
-					{ NULL, 0 } /* Terminates the array. */
-				};
-
-				/* Pass the array into vPortDefineHeapRegions(). */
-				vPortDefineHeapRegions( xHeapRegions );
-	endchoice	
-	config TOTAL_HEAP_SIZE
-		int "Total Heap Size"
-		default 1536
-		depends on HEAP_1 || HEAP_2 || HEAP_4
-		help
-			HEAP Size
-	config USE_MALLOC_FAILED_HOOK
-		bool "Use Malloc Failed Hook"
+	config SUPPORT_STATIC_ALLOCATION
+		bool "Support Static Allocation"
 		default n
-		help 
-			The kernel uses a call to pvPortMalloc() to allocate memory from the heap each time a task, queue or semaphore is created.
-			The official FreeRTOS download includes four sample memory allocation schemes for this purpose. The schemes are implemented 
-			in the heap_1.c, heap_2.c, heap_3.c, heap_4.c and heap_5.c source files respectively. configUSE_MALLOC_FAILED_HOOK is only 
-			relevant when one of these three sample schemes is being used.
-			The malloc() failed hook function is a hook (or callback) function that, if defined and configured, will be called if 
-			pvPortMalloc() ever returns NULL. NULL will be returned only if there is insufficient FreeRTOS heap memory remaining for 
-			the requested allocation to succeed.
+		help
+			If SUPPORT_STATIC_ALLOCATION is set to y then RTOS objects can be created using RAM provided by the application writer.
+			If SUPPORT_STATIC_ALLOCATION is set to n then RTOS objects can only be created using RAM allocated from the FreeRTOS heap.
 
-			If configUSE_MALLOC_FAILED_HOOK is set to 1 then the application must define a malloc() failed hook function. If 
-			configUSE_MALLOC_FAILED_HOOK is set to 0 then the malloc() failed hook function will not be called, even if one is 
-			defined. Malloc() failed hook functions must have the name and prototype shown below.
+			If SUPPORT_STATIC_ALLOCATION is left undefined it will default to n.
 
-			void vApplicationMallocFailedHook( void );
+			If SUPPORT_STATIC_ALLOCATION is set to y then the application writer must also provide two callback functions: vApplicationGetIdleTaskMemory() to provide the memory for use by the RTOS Idle task, and (if configUSE_TIMERS is set to 1) vApplicationGetTimerTaskMemory() to provide memory for use by the RTOS Daemon/Timer Service task.
+
+			See the Static Vs Dynamic Memory Allocation page for more information at http://www.freertos.org/Static_Vs_Dynamic_Memory_Allocation.html
+	config SUPPORT_DYNAMIC_ALLOCATION
+		bool "Support Dynamic Allocation"
+		default y
+		help
+			If configSUPPORT_DYNAMIC_ALLOCATION is set to y then RTOS objects can be created using RAM that is automatically allocated from the FreeRTOS heap.
+			If configSUPPORT_DYNAMIC_ALLOCATION is set to n then RTOS objects can only be created using RAM provided by the application writer.
+
+			If configSUPPORT_DYNAMIC_ALLOCATION is left undefined it will default to y.
+
+			See the Static Vs Dynamic Memory Allocation page for more information at http://www.freertos.org/Static_Vs_Dynamic_Memory_Allocation.html
+		config SUPPORT_DYNAMIC_ALLOCATION_DISABLED
+			bool
+			default y
+			depends on !SUPPORT_DYNAMIC_ALLOCATION
+			select SUPPORT_STATIC_ALLOCATION
+			select USE_STATIC
+		if SUPPORT_DYNAMIC_ALLOCATION=y
+		choice
+			prompt "Used Heap Implemenation"
+			help 
+				FreeRTOS offers several heap management schemes that range in complexity and features - the simplest of which can sometimes 
+				even meet the requirements of applications that, for safety reasons, do not permit dynamic memory allocation at all.
+
+				It is also possible to provide your own heap implementation, and even to use two heap implementations simultaneously. Using 
+				two heap implementations simultaneously permits task stacks and other RTOS objects to be placed in fast internal RAM, and 
+				application data to be placed in slower external RAM.
+
+				The RTOS kernel allocates RAM each time a task, queue, mutex, software timer, semaphore or event group is created. The 
+				standard C library malloc() and free() functions can sometimes be used for this purpose, but ...
+
+				1. they are not always available on embedded systems,
+				2. they take up valuable code space,
+				3. they are not thread safe, and
+				4. they are not deterministic (the amount of time taken to execute the function will differ from call to call)
+
+				... so more often than not an alternative memory allocation implementation is required.
+				One embedded / real time system can have very different RAM and timing requirements to another - so a single RAM allocation 
+				algorithm will only ever be appropriate for a subset of applications.
+
+				To get around this problem, FreeRTOS keeps the memory allocation API in its portable layer. The portable layer is outside 
+				of the source files that implement the core RTOS functionality, allowing an application specific implementation appropriate 
+				for the real time system being developed to be provided. When the RTOS kernel requires RAM, instead of calling malloc(), it 
+				instead calls pvPortMalloc(). When RAM is being freed, instead of calling free(), the RTOS kernel calls vPortFree().
+
+		config HEAP_1
+			bool "Heap 1"
+			help
+				This is the simplest implementation of all. It does not permit memory to be freed once it has been allocated. Despite this, 
+				heap_1.c is appropriate for a large number of embedded applications. This is because the majority of deeply embedded 
+				applications create all the tasks, queues, semaphores, etc. required when the system boots, and then use all of these 
+				objects for the lifetime of program (until the application is switched off again, or is rebooted). Nothing ever gets 
+				deleted.
+				The implementation simply subdivides a single array into smaller blocks as RAM is requested. The total size of the 
+				array (the total size of the heap) is set by configTOTAL_HEAP_SIZE - which is defined in FreeRTOSConfig.h.
+
+				The xPortGetFreeHeapSize() API function returns the total amount of heap space that remains unallocated, allowing the 
+				configTOTAL_HEAP_SIZE setting to be optimised.
+
+				The heap_1 implementation:
+
+				- Can be used if your application never deletes a task, queue, semaphore, mutex, etc. (which actually covers the majority 
+				  of applications in which FreeRTOS gets used).
+				- Is always deterministic (always takes the same amount of time to execute) and cannot result in memory fragmentation.
+				- Is very simple and allocated memory from a statically allocated array, meaning it is often suitable for use in 
+				  applications that do not permit true dynamic memory allocation.
+		config HEAP_2
+			bool "Heap 2"
+			help
+				This scheme uses a best fit algorithm and, unlike scheme 1, allows previously allocated blocks to be freed. It does not 
+				however combine adjacent free blocks into a single large block (it does not include a coalescence algorithm - see 
+				heap_4.c for an implementation that does coalescence free blocks).
+				The total amount of available heap space is set by configTOTAL_HEAP_SIZE - which is defined in FreeRTOSConfig.h.
+
+				The xPortGetFreeHeapSize() API function returns the total amount of heap space that remains unallocated (allowing the 
+				configTOTAL_HEAP_SIZE setting to be optimised), but does not provided information on how the unallocated memory 
+				is fragmented into smaller blocks.
+
+				This implementation:
+				- Can be used even when the application repeatedly deletes tasks, queues, semaphores, mutexes, etc., with the caveat 
+				  below regarding memory fragmentation.
+				- Should not be used if the memory being allocated and freed is of a random size. For example:
+				  - If an application dynamically creates and deletes tasks, and the size of the stack allocated to the tasks being 
+				    created is always the same, then heap2.c can be used in most cases. However, if the size of the stack allocated to 
+				    the tasks being created was not always the same, then the available free memory might become fragmented into many 
+				    small blocks, eventually resulting in allocation failures. heap_4.c would be a better choise in this case.
+				  - If an application dynamically creates and deletes queues, and the queue storage area is the same in each case (the 
+				    queue storage area is the queue item size multiplied by the length of the queue), then heap_2.c can be used in 
+				    most cases. However, if the queue storage area were not the same in each case, then the available free memory might 
+				    become fragmented into many small blocks, eventually resulting in allocation failures. heap_4.c would be a better 
+				    choise in this case.
+				  - The application called pvPortMalloc() and vPortFree() directly, rather than just indirectly through other FreeRTOS 
+				    API functions.
+				- Could possible result in memory fragmentation problems if your application queues, tasks, semaphores, mutexes, etc. 
+				  in an unpredictable order. This would be unlikely for nearly all applications but should be kept in mind.
+				- not deterministic - but is much more efficient that most standard C library malloc implementations.
+				heap_2.c is suitable for most small real time systems that have to dynamically create tasks.
+		config HEAP_3
+			bool "Heap 3"
+			depends on MACH_HAS_MALLOC || NEWLIB_MALLOC
+			help 
+				This implements a simple wrapper for the standard C library malloc() and free() functions that will, in most cases, be 
+				supplied with your chosen compiler. The wrapper simply makes the malloc() and free() functions thread safe.
+				This implementation:
+				- Requires the linker to setup a heap, and the compiler library to provide malloc() and free() implementations.
+				- Is not deterministic.
+				- Will probably considerably increase the RTOS kernel code size.
+				Note that the configTOTAL_HEAP_SIZE setting in FreeRTOSConfig.h has no effect when heap_3 is used.
+		config HEAP_4
+			bool "Heap 4"
+			help
+				This scheme uses a first fit algorithm and, unlike scheme 2, it does combine adjacent free memory blocks into a single 
+				large block (it does include a coalescence algorithm).
+				The total amount of available heap space is set by configTOTAL_HEAP_SIZE - which is defined in FreeRTOSConfig.h.
+
+				The xPortGetFreeHeapSize() API function returns the total amount of heap space that remains unallocated (allowing the 
+				configTOTAL_HEAP_SIZE setting to be optimised), but does not provided information on how the unallocated memory is 
+				fragmented into smaller blocks.
+
+				This implementation:
+				- Can be used even when the application repeatedly deletes tasks, queues, semaphores, mutexes, etc..
+				- Is much less likely than the heap_2 implementation to result in a heap space that is badly fragmented into multiple 
+				  small blocks - even when the memory being allocated and freed is of random size.
+				- Is not deterministic - but is much more efficient that most standard C library malloc implementations.
+				  heap_4.c is particularly useful for applications that want to use the portable layer memory allocation schemes 
+				  directly in the application code (rather than just indirectly by calling API functions that themselves call 
+				  pvPortMalloc() and vPortFree()).
+				If you need to place the heap at a specific memory address then set configAPPLICATION_ALLOCATED_HEAP to 1 in 
+				FreeRTOSConfig.h, and declare an array called ucHeap[]. For example, using IAR/MSP430 syntax, the following code will 
+				place the array from which heap memory is obtained at address 0x4000.
+
+				#pragma location=0x4000
+				uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+		config HEAP_5
+			bool "Heap 5"
+			help 
+				This scheme uses the same first fit and memory coalescence algorithms as heap_4, and allows the heap to span multiple 
+				non adjacent (non-contiguous) memory regions.
+				Heap_5 is initialised by calling vPortDefineHeapRegions(), and cannot be used until after vPortDefineHeapRegions() 
+				has executed. Creating an RTOS object (task, queue, semaphore, etc.) will implicitly call pvPortMalloc() so it is 
+				essential that, when using heap_5, vPortDefineHeapRegions() is called before the creation of any such object.
+
+				vPortDefineHeapRegions() takes a single parameter. The parameter is an array of HeapRegion_t structures. HeapRegion_t is 
+				defined in portable.h as
+					typedef struct HeapRegion
+					{
+						/* Start address of a block of memory that will be part of the heap.*/
+						uint8_t *pucStartAddress;
+
+						/* Size of the block of memory. */
+						size_t xSizeInBytes;
+					} HeapRegion_t;
+				The array is terminated using a NULL zero sized region definition, and the memory regions defined in the array must 
+				appear in address order, from low address to high address. The following source code snippets provide an example. 
+				The MSVC Win32 simulator demo also uses heap_5 so can be used as a reference.
+					/* Allocate two blocks of RAM for use by the heap.  The first is a block of 
+					0x10000 bytes starting from address 0x80000000, and the second a block of 
+					0xa0000 bytes starting from address 0x90000000.  The block starting at 
+					0x80000000 has the lower start address so appears in the array fist. */
+					const HeapRegion_t xHeapRegions[] =
+					{
+						{ ( uint8_t * ) 0x80000000UL, 0x10000 },
+						{ ( uint8_t * ) 0x90000000UL, 0xa0000 },
+						{ NULL, 0 } /* Terminates the array. */
+					};
+
+					/* Pass the array into vPortDefineHeapRegions(). */
+					vPortDefineHeapRegions( xHeapRegions );
+		endchoice	
+		config TOTAL_HEAP_SIZE
+			int "Total Heap Size"
+			default 1536
+			depends on HEAP_1 || HEAP_2 || HEAP_4
+			help
+				HEAP Size
+		config USE_MALLOC_FAILED_HOOK
+			bool "Use Malloc Failed Hook"
+			default n
+			help 
+				The kernel uses a call to pvPortMalloc() to allocate memory from the heap each time a task, queue or semaphore is created.
+				The official FreeRTOS download includes four sample memory allocation schemes for this purpose. The schemes are implemented 
+				in the heap_1.c, heap_2.c, heap_3.c, heap_4.c and heap_5.c source files respectively. configUSE_MALLOC_FAILED_HOOK is only 
+				relevant when one of these three sample schemes is being used.
+				The malloc() failed hook function is a hook (or callback) function that, if defined and configured, will be called if 
+				pvPortMalloc() ever returns NULL. NULL will be returned only if there is insufficient FreeRTOS heap memory remaining for 
+				the requested allocation to succeed.
+
+				If configUSE_MALLOC_FAILED_HOOK is set to 1 then the application must define a malloc() failed hook function. If 
+				configUSE_MALLOC_FAILED_HOOK is set to 0 then the malloc() failed hook function will not be called, even if one is 
+				defined. Malloc() failed hook functions must have the name and prototype shown below.
+
+				void vApplicationMallocFailedHook( void );
+		config APPLICATION_ALLOCATED_HEAP
+			bool "User defined Heap"
+			default n
+			depends on HEAP_1 || HEAP_2 || HEAP_4
+			help
+				By default the FreeRTOS heap is declared by FreeRTOS and placed in memory by the linker. Setting configAPPLICATION_ALLOCATED_HEAP to 1 allows the heap to instead be declared by the application writer, which allows the application writer to place the heap wherever they like in memory.
+				If heap_1.c, heap_2.c or heap_4.c is used, and configAPPLICATION_ALLOCATED_HEAP is set to 1, then the application writer must provide a uint8_t array with the exact name and dimension as shown below. The array will be used as the FreeRTOS heap. How the array is placed at a specific memory location is dependent on the compiler being used - refer to your compiler's documentation.
+
+				uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+	endif
+
 
 	config INCLUDE_USER_FREERTOS_CONFIG
 		bool "Include User FreeRTOS Config"
@@ -239,6 +280,8 @@ menu "Basic Settings"
 	choice 
 		prompt "Select Time Stats Generator Function"
 		depends on GENERATE_RUN_TIME_STATS 
+		depends on !ARCH_DEFINE_RUN_TIME_STATS
+		depends on !MACH_DEFINE_RUN_TIME_STATS
 		config GENERATE_RUN_TIME_STATS_DEFAULT
 			bool "Use xTaskGetTickCount() (default)"
 			help 
@@ -312,6 +355,7 @@ menu "Task Setting"
 	config USE_STATS_FORMATTING_FUNCTIONS
 		bool "Use Statistic Formatting Functions"
 		depends on USE_TRACE_FACILITY
+		depends on SUPPORT_DYNAMIC_ALLOCATION
 		default n
 		help
 			Set configUSE_TRACE_FACILITY and configUSE_STATS_FORMATTING_FUNCTIONS to y to include the vTaskList() and 
@@ -540,7 +584,7 @@ menu "Task Setting"
 	config INCLUDE_vTaskDelete
 		bool "Add Task Deletion Support"
 		default n
-		depends on HEAP_2 || HEAP_3 || HEAP_4 || HEAP_5
+		depends on HEAP_2 || HEAP_3 || HEAP_4 || HEAP_5 || SUPPORT_STATIC_ALLOCATION
 		help
 			Add Task Deletion Support 
 	config INCLUDE_xTaskGetIdleTaskHandle
