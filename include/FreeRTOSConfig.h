@@ -56,10 +56,17 @@ void userErrorHandler();
  * Add Branch prediction information assert should always not x
  */
 # include <stdio.h>
+# ifdef CONFIG_GCC_BACKTRACE
+#  include <backtrace.h>
+#  define BACKTRACE() backtrace();
+# else
+#  define BACKTRACE()
+# endif
 # define configASSERT(x) \
 	do{ \
 		if(__builtin_expect(!(x), 0)) { \
 			printf("ASSERT FAILT: %s File: %s Line: %d Function: %s\n", #x, __FILE__, __LINE__, __FUNCTION__); \
+			BACKTRACE(); \
 			USER_ERROR_HANDLER(); \
 			portDISABLE_INTERRUPTS(); \
 			for(;;); \
