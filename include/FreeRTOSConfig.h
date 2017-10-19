@@ -49,6 +49,12 @@ void userErrorHandler();
 #ifdef CONFIG_ASSERT_USER_DEFINED
 # define configASSERT(x) ASSERT_USER(x)
 #endif
+#ifdef CONFIG_GCC_BACKTRACE
+# include <backtrace.h>
+# define BACKTRACE() backtrace();
+#else
+# define BACKTRACE()
+#endif
 #ifdef CONFIG_ASSERT_DEFAULT_PRINT
 /* 
  * __builtin_expect GCC Optimization
@@ -56,12 +62,6 @@ void userErrorHandler();
  * Add Branch prediction information assert should always not x
  */
 # include <stdio.h>
-# ifdef CONFIG_GCC_BACKTRACE
-#  include <backtrace.h>
-#  define BACKTRACE() backtrace();
-# else
-#  define BACKTRACE()
-# endif
 # define configASSERT(x) \
 	do{ \
 		if(__builtin_expect(!(x), 0)) { \
