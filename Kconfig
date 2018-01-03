@@ -317,6 +317,19 @@ menu "Basic Settings"
 			Set to 1 to include the 'alternative' queue functions in the build, or 0 to omit the 'alternative' queue functions 
 			from the build. The alternative API is described within the queue.h header file. The alternative API is deprecated 
 			and should not be used in new designs.
+	config TASK_RETURN_ADDRESS
+		bool "Set custom task return Address"
+		default n
+		depends on ARCH_SUPPORT_CUSTOM_TASK_RETURN_ADDRESS
+		help
+			Set custom task return Address
+
+			Function prototype:
+			void taskReturnFunction(void);
+	config DEFAULT_TASK_RETURN_ADDRESS
+		bool
+		default y
+		depends on ARCH_SUPPORT_CUSTOM_TASK_RETURN_ADDRESS && !TASK_RETURN_ADDRESS
 
 endmenu
 menu "Task Setting"

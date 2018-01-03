@@ -443,4 +443,8 @@ void userErrorHandler();
 #  endif
 # endif
 #endif
+#ifdef CONFIG_ARCH_SUPPORT_CUSTOM_TASK_RETURN_ADDRESS
+void taskReturnFunction();
+# define configTASK_RETURN_ADDRESS taskReturnFunction
+#endif
 #endif
