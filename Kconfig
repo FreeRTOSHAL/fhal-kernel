@@ -383,14 +383,28 @@ menu "Task Setting"
 			Set configUSE_TICKLESS_IDLE to y to use the low power tickless mode, or 0 to keep the tick interrupt running at all times.
 
 			more imformation under http://www.freertos.org/low-power-tickless-rtos.html
-	comment "EXPECTED_IDLE_TIME_BEFORE_SLEEP must not be less than 2"
-		depends on EXPECTED_IDLE_TIME_BEFORE_SLEEP = 1 || EXPECTED_IDLE_TIME_BEFORE_SLEEP = 0
-	config EXPECTED_IDLE_TIME_BEFORE_SLEEP
-		int "Expected idle time before sleep"
-		default 2
-		depends on USE_TICKLESS_IDLE
-		help
-			Minimal Time before Processor go to sleep
+		comment "EXPECTED_IDLE_TIME_BEFORE_SLEEP must not be less than 2"
+			depends on EXPECTED_IDLE_TIME_BEFORE_SLEEP = 1 || EXPECTED_IDLE_TIME_BEFORE_SLEEP = 0
+		config EXPECTED_IDLE_TIME_BEFORE_SLEEP
+			int "Expected idle time before sleep"
+			default 2
+			depends on USE_TICKLESS_IDLE
+			help
+				Minimal Time before Processor go to sleep
+
+		config PRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING_FUNCTION
+			default n
+			depends on USE_TICKLESS_IDLE
+			help
+				User must provied: TickType_t preSuppressTicksAndProcessing(TickType_t xExpectedIdleTime)
+				The function is called before assessing whether to enter tickless 
+				idle mode or not.  If the function return zero then tickless idle 
+				mode will not be entered.  This allows users to abort tickless 
+				idle mode entry before the tickless idle function is even called - 
+				previously it was only possible to abort from within the tickless 
+				idle function itself. If return value is graeder xExpectedIdleTime is
+				set to return value.
+
 	config USE_IDLE_HOOK
 		bool "Use Idle Hook"
 		default n
@@ -578,6 +592,11 @@ menu "Task Setting"
 				To use this method in combination with method 1 set configCHECK_FOR_STACK_OVERFLOW to 2. It is not possible to use only 
 				this method. 
 	endchoice
+	config RECORD_STACK_HIGH_ADDRESS
+		bool "Record Highest possible Stack Address in TCB"
+		default n
+		help
+			When set to 1 the stack start address is saved into each task's TCB (assuming stack grows down).
 	config USE_TICK_HOOK
 		bool "Use Tick Hook"
 		default n
@@ -593,6 +612,25 @@ menu "Task Setting"
 			vApplicationTickHook() executes from within an ISR so must be very short, not use much stack, and not call any API 
 			functions that don't end in "FromISR" or "FROM_ISR".
 			See the demo application file crhook.c for an example of how to use a tick hook.
+	choice 
+		prompt "Select STACK_DEPTH_TYPE"
+			help
+				allow users to change the type used
+				to specify the stack size when using xTaskCreate().  For historic reasons,
+				when FreeRTOS was only used on small MCUs, the type was set to uint16_t,
+				but that can be too restrictive when FreeRTOS is used on larger
+			config STACK_DEPTH_TYPE_16BIT
+				bool "Stack Depth is 16Bit"
+			config STACK_DEPTH_TYPE_32BIT
+				bool "Stack Depth is 32Bit"
+	endchoice
+	config INITIAL_TICK_COUNT
+		int "Initial Tick count"
+		default 0
+		help
+			allow the tick count to take a value of than than 0 when the system boots.  
+			This can be useful for testing purposes - although setting 
+			CONFIG_USE_16_BIT_TICKS to y can also be used to test frequent tick overflows.
 	comment "Function Support"
 	config INCLUDE_vTaskDelete
 		bool "Add Task Deletion Support"
@@ -643,6 +681,17 @@ menu "Task Setting"
 		default n
 		help
 			Add Get Current Task Handle Support
+	config INCLUDE_FREERTOS_TASK_C_ADDITIONS_H
+		bool "Include FreeROTS task.c additions"
+		default n
+		help
+			allow user defined functionality, and user defined initialisation, 
+			to be added to FreeRTOS's tasks.c source file.  
+			When configINCLUDE_FREERTOS_TASK_C_ADDITIONS_H is set to 1 a user 
+			provided header file called freertos_task_c_additions.h will be 
+			included at the bottom of tasks.c.  Functions defined in that
+			header file can call freertos_tasks_c_additions_init(), which in turn
+			calls a macro called FREERTOS_TASKS_C_ADDITIONS_INIT(), if it is defined.
 endmenu
 menu "Queue Settings" 
 	config USE_QUEUE_SETS
@@ -762,4 +811,19 @@ menuconfig USE_CO_ROUTINES
 		help
 			The number of priorities available to the application co-routines. Any number of co-routines can share the 
 			same priority. Tasks are prioritised separately - see CONFIG_MAX_PRIORITIES.
+config STREAM_BUFFER
+	bool "Use Stream Buffer / Messages Buffer"
+	depends on USE_TASK_NOTIFICATIONS
+	default n
+	help
+		Stream buffers are an RTOS task to RTOS task, and interrupt to task communication 
+		primitives. Unlike most other FreeRTOS communications primitives, they are optimised 
+		for single reader single writer scenarios, such as passing data from an interrupt 
+		service routine to a task, or from one microcontroller core to another on dual core 
+		CPUs. Data is passed by copy - the data is copied into the buffer by the sender and 
+		out of the buffer by the read.
+		Stream buffers pass a continuous stream of bytes. Message buffers pass variable 
+		sized but discrete messages. Message buffers use stream buffers for data transfer.
+		
+		More Infos at https://www.freertos.org/RTOS-stream-message-buffers.html
 endmenu
