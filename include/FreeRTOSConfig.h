@@ -84,6 +84,12 @@ void userErrorHandler();
 # endif
 #endif
 
+#ifdef CONFIG_RECORD_STACK_HIGH_ADDRESS
+# define configRECORD_STACK_HIGH_ADDRESS 1
+#else
+# define configRECORD_STACK_HIGH_ADDRESS 0
+#endif
+
 #ifdef CONFIG_GENERATE_RUN_TIME_STATS_DEFAULT
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() do{}while(0)
 #define portGET_RUN_TIME_COUNTER_VALUE() xTaskGetTickCount()
@@ -196,6 +202,9 @@ void userErrorHandler();
 #else
 # define configUSE_TICKLESS_IDLE 0
 #endif
+#ifdef CONFIG_PRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING_FUNCTION
+# define configPRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING(x) do { x = pre_suppress_ticks_and_processing(x)} while(0)
+#endif
 #ifdef CONFIG_EXPECTED_IDLE_TIME_BEFORE_SLEEP
 # if CONFIG_EXPECTED_IDLE_TIME_BEFORE_SLEEP <= 1
 #  error "CONFIG_EXPECTED_IDLE_TIME_BEFORE_SLEEP shal > 1"
@@ -269,6 +278,13 @@ void userErrorHandler();
 #else
 # define configUSE_TICK_HOOK 0
 #endif
+#ifdef CONFIG_STACK_DEPTH_TYPE_16BIT
+# define configSTACK_DEPTH_TYPE uint16_t
+#endif
+#ifdef CONFIG_STACK_DEPTH_TYPE_32BIT
+# define configSTACK_DEPTH_TYPE uint32_t
+#endif
+#define configINITIAL_TICK_COUNT CONFIG_INITIAL_TICK_COUNT
 #ifdef CONFIG_INCLUDE_vTaskDelete
 # define INCLUDE_vTaskDelete 1
 #else
@@ -318,6 +334,11 @@ void userErrorHandler();
 # define INCLUDE_xTaskGetCurrentTaskHandle 1
 #else
 # define INCLUDE_xTaskGetCurrentTaskHandle 0
+#endif
+#ifdef CONFIG_INCLUDE_FREERTOS_TASK_C_ADDITIONS_H
+# define configINCLUDE_FREERTOS_TASK_C_ADDITIONS_H 1
+#else
+# define configINCLUDE_FREERTOS_TASK_C_ADDITIONS_H 0
 #endif
 #ifdef CONFIG_USE_QUEUE_SETS
 # define configUSE_QUEUE_SETS 1
