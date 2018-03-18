@@ -393,6 +393,7 @@ menu "Task Setting"
 				Minimal Time before Processor go to sleep
 
 		config PRE_SUPPRESS_TICKS_AND_SLEEP_PROCESSING_FUNCTION
+			bool "Use pre Suppress Tick and processing function"
 			default n
 			depends on USE_TICKLESS_IDLE
 			help
