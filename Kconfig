@@ -632,6 +632,11 @@ menu "Task Setting"
 			allow the tick count to take a value of than than 0 when the system boots.  
 			This can be useful for testing purposes - although setting 
 			CONFIG_USE_16_BIT_TICKS to y can also be used to test frequent tick overflows.
+	config USE_POSIX_ERRNO
+		bool "Use POSIX errno"
+		default n
+		help
+			Add POSIX errno to TCB
 	comment "Function Support"
 	config INCLUDE_vTaskDelete
 		bool "Add Task Deletion Support"

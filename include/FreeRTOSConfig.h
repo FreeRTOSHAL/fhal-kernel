@@ -444,6 +444,11 @@ void userErrorHandler();
 #else
 # define configAPPLICATION_ALLOCATED_HEAP 0
 #endif
+#ifdef CONFIG_USE_POSIX_ERRNO
+# define configUSE_POSIX_ERRNO 1
+#else
+# define configUSE_POSIX_ERRNO 0
+#endif
 /*
  * Arch configs
  */
