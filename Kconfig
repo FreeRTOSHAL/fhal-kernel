@@ -301,6 +301,17 @@ menu "Basic Settings"
 		help 
 			Get Stack High Water Mark Support. The Stack High Water Mark is the highest position of Stack pointer recognized while Task
 			Switching. 
+	config INCLUDE_uxTaskGetStackHighWaterMark2
+		bool "Get Stack High Water Mark Support 2"
+		default n
+		depends on USE_TRACE_FACILITY
+		depends on CHECK_STACK_OVERFLOW
+		help 
+			uxTaskGetStackHighWaterMark() and uxTaskGetStackHighWaterMark2() are the
+			same except for their return type.  Using configSTACK_DEPTH_TYPE allows the
+			user to determine the return type.  It gets around the problem of the value
+			overflowing on 8-bit types without breaking backward compatibility for
+			applications that expect an 8-bit return type.
 	config USE_LIST_DATA_INTEGRITY_CHECK_BYTES
 		bool "Add List Integrity Check Bytes to Lists"
 		default n
@@ -330,6 +341,22 @@ menu "Basic Settings"
 		bool
 		default y
 		depends on ARCH_SUPPORT_CUSTOM_TASK_RETURN_ADDRESS && !TASK_RETURN_ADDRESS
+	config ENABLE_MPU
+		bool "Enable MPU"
+		default n
+		depends on ARCH_ARM_CORTEX_M33
+	config ENABLE_FPU
+		bool "Enable FPU"
+		default n
+		depends on ARCH_ARM_CORTEX_M33
+	config ENABLE_TRUSTZONE
+		bool "Enable Trustzone"
+		default n
+		depends on ARCH_ARM_CORTEX_M33
+	config RUN_FREERTOS_SECURE_ONLY
+		bool "Run FreeRTOS in Secure Mode only"
+		default n
+		depends on ARCH_ARM_CORTEX_M33
 
 endmenu
 menu "Task Setting"
@@ -698,6 +725,19 @@ menu "Task Setting"
 			included at the bottom of tasks.c.  Functions defined in that
 			header file can call freertos_tasks_c_additions_init(), which in turn
 			calls a macro called FREERTOS_TASKS_C_ADDITIONS_INIT(), if it is defined.
+	config INCLUDE_xTaskAbortDelay
+		bool "INCLUDE xTaskAbortDelay"
+		default n
+		help 
+			Add xTaskAbortDelay() call
+
+			A task will enter the Blocked state when it is waiting for an event.  The
+			event it is waiting for can be a temporal event (waiting for a time), such
+			as when vTaskDelay() is called, or an event on an object, such as when
+			xQueueReceive() or ulTaskNotifyTake() is called.  If the handle of a task
+			that is in the Blocked state is used in a call to xTaskAbortDelay() then the
+			task will leave the Blocked state, and return from whichever function call
+			placed the task into the Blocked state.
 endmenu
 menu "Queue Settings" 
 	config USE_QUEUE_SETS

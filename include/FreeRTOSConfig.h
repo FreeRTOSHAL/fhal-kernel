@@ -153,6 +153,11 @@ void userErrorHandler();
 #else
 # define INCLUDE_uxTaskGetStackHighWaterMark 0
 #endif
+#ifdef CONFIG_INCLUDE_uxTaskGetStackHighWaterMark2
+# define INCLUDE_uxTaskGetStackHighWaterMark2 1
+#else
+# define INCLUDE_uxTaskGetStackHighWaterMark2 0
+#endif
 #ifdef CONFIG_USE_LIST_DATA_INTEGRITY_CHECK_BYTES
 # define configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES 1
 #else
@@ -473,4 +478,29 @@ void userErrorHandler();
 void taskReturnFunction();
 # define configTASK_RETURN_ADDRESS taskReturnFunction
 #endif
+#endif
+#ifdef CONFIG_ENABLE_MPU
+# define configENABLE_MPU 1
+#else
+# define configENABLE_MPU 0
+#endif
+#ifdef CONFIG_ENABLE_FPU
+# define configENABLE_FPU 1
+#else
+# define configENABLE_FPU 0
+#endif
+#ifdef CONFIG_ENABLE_TRUSTZONE
+# define configENABLE_TRUSTZONE 1
+#else
+# define configENABLE_TRUSTZONE 0
+#endif
+#ifdef CONFIG_RUN_FREERTOS_SECURE_ONLY
+# define configRUN_FREERTOS_SECURE_ONLY 1
+#else
+# define configRUN_FREERTOS_SECURE_ONLY 0
+#endif
+#ifdef CONFIG_INCLUDE_xTaskAbortDelay
+# define INCLUDE_xTaskAbortDelay 1
+#else
+# define INCLUDE_xTaskAbortDelay 0
 #endif
