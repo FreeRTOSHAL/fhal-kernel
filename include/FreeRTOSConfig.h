@@ -487,3 +487,8 @@ void taskReturnFunction();
 #else
 # define INCLUDE_xTaskAbortDelay 0
 #endif
+#ifdef CONFIG_USE_DAEMON_TASK_STARTUP_HOOK
+# define configUSE_DAEMON_TASK_STARTUP_HOOK 1
+#else
+# define configUSE_DAEMON_TASK_STARTUP_HOOK 0
+#endif

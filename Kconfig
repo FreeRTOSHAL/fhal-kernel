@@ -474,6 +474,18 @@ menu "Task Setting"
 
 			- It is common to use the idle hook function to place the microcontroller CPU into a power saving mode.
 
+	config USE_DAEMON_TASK_STARTUP_HOOK
+		bool "Use Deamon Task Startup Hook"
+		default n
+		help
+			If configUSE_TIMERS and configUSE_DAEMON_TASK_STARTUP_HOOK are both set to 1 then the application 
+			must define a hook function that has the exact name and prototype as shown below. The hook function 
+			will be called exactly once when the RTOS daemon task (also known as the timer service task) executes 
+			for the first time. Any application initialisation code that needs the RTOS to be running can be 
+			placed in the hook function.
+
+			void void vApplicationDaemonTaskStartupHook( void );
+
 	config INCLUDE_vTaskSuspend
 		bool "Enable task suspend capability" 
 		default y
@@ -555,6 +567,16 @@ menu "Task Setting"
 			from the build.
 
 			Each task consumes 8 additional bytes of RAM when direct to task notifications are included in the build.
+		config TASK_NOTIFICATION_ARRAY_ENTRIES
+			int "Task Notification Array entries"
+			depends on USE_TASK_NOTIFICATIONS
+			default 1
+			help
+				Each RTOS task has an array of task notifications. configTASK_NOTIFICATION_ARRAY_ENTRIES sets the number of indexes 
+				in the array.
+				Prior to FreeRTOS V10.4.0 tasks only had a single notification value, not an array of values, so for backward compatibility 
+				configTASK_NOTIFICATION_ARRAY_ENTRIES defaults to 1 if it is left undefined.
+
 	config USE_PORT_OPTIMISED_TASK_SELECTION
 		bool "Use Optimised Task Selection"
 		default n
