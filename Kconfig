@@ -731,6 +731,11 @@ menu "Task Setting"
 		default n
 		help 
 			Add get Scheduler State Support.
+	config INCLUDE_xTaskGetHandle
+		bool "Add Get Task Handle Support"
+		default n
+		help
+			Add Get Task Handle Support
 	config INCLUDE_xTaskGetCurrentTaskHandle
 		bool "Add Get Current Task Handle Support"
 		default n

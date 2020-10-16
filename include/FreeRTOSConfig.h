@@ -318,6 +318,11 @@ void userErrorHandler();
 #else
 # define INCLUDE_xTaskGetSchedulerState 0
 #endif
+#ifdef CONFIG_INCLUDE_xTaskGetHandle
+# define INCLUDE_xTaskGetHandle 1
+#else
+# define INCLUDE_xTaskGetHandle 0
+#endif
 #ifdef CONFIG_INCLUDE_xTaskGetCurrentTaskHandle
 # define INCLUDE_xTaskGetCurrentTaskHandle 1
 #else
