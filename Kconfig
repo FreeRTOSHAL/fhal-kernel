@@ -795,6 +795,7 @@ menu "Queue Settings"
 			documentation for vQueueAddToRegistry() and vQueueUnregisterQueue() for more information.
 	config USE_MUTEXES
 		bool "Use Mutexes"
+		select INCLUDE_xTaskGetCurrentTaskHandle
 		default n
 		help
 			Set to 1 to include mutex functionality in the build, or 0 to omit mutex functionality from the build. Readers 
