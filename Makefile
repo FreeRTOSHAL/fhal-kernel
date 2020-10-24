@@ -19,6 +19,8 @@ $(obj)/version.c: FORCE
 	if git diff-index --name-only HEAD | grep -qv "^scripts/package" > /dev/null; then \
 		version="$$version-dirty"; \
 	fi; \
-	version="$$version\";"; \
 	cd $$dir; \
-	echo $$version > $@;
+	version="$$version FreeRTOS Version: \" tskKERNEL_VERSION_NUMBER;"; \
+	echo '#include <FreeRTOS.h>' > $@; \
+	echo '#include <task.h>' >> $@; \
+	echo $$version >> $@;
