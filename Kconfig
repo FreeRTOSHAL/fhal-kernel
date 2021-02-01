@@ -702,6 +702,14 @@ menu "Task Setting"
 		bool "Add Task Delay Support"
 		default y
 	config INCLUDE_vTaskDelayUntil
+		bool
+		default n
+		select INCLUDE_xTaskDelayUntil
+		help
+			Removed in FreeRTOS V10.4.3
+
+			If a old Config select INCLUDE_vTaskDelayUntil INCLUDE_xTaskDelayUntil is selected automaticly
+	config INCLUDE_xTaskDelayUntil
 		bool "Add Task Delay Until Support"
 		default y
 		help
