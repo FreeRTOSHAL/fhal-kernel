@@ -288,10 +288,10 @@ void userErrorHandler();
 #else
 # define INCLUDE_vTaskDelay 0
 #endif
-#ifdef CONFIG_INCLUDE_vTaskDelayUntil
-# define INCLUDE_vTaskDelayUntil 1
+#ifdef CONFIG_INCLUDE_xTaskDelayUntil
+# define INCLUDE_xTaskDelayUntil 1
 #else
-# define INCLUDE_vTaskDelayUntil 0
+# define INCLUDE_xTaskDelayUntil 0
 #endif
 #ifdef CONFIG_INCLUDE_eTaskGetState
 # define INCLUDE_eTaskGetState 1
