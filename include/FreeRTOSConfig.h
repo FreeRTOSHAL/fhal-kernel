@@ -5,6 +5,9 @@
  */
 #ifndef FreeRTOSConfig_h_
 #define FreeRTOSConfig_h_
+#ifdef CONFIG_INCLUDE_ARCH_FREEROTS_CONFIG
+# include <FreeROTSArchConfig.h>
+#endif
 #ifdef CONFIG_INCLUDE_USER_FREERTOS_CONFIG
 # include <FreeRTOSConfigUser.h>
 #endif
