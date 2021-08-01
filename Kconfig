@@ -543,6 +543,7 @@ menu "Task Setting"
 			Set to y if you want use Task Tags. Used by Trace Hook Macros
 	config USE_NEWLIB_REENTRANT
 		bool "Use Newlib reentrat"
+		default y
 		depends on NEWLIB
 		help
 			If configUSE_NEWLIB_REENTRANT is set to 1 then a newlib reent structure will be allocated for each created task.
@@ -662,10 +663,15 @@ menu "Task Setting"
 				to specify the stack size when using xTaskCreate().  For historic reasons,
 				when FreeRTOS was only used on small MCUs, the type was set to uint16_t,
 				but that can be too restrictive when FreeRTOS is used on larger
-			config STACK_DEPTH_TYPE_16BIT
-				bool "Stack Depth is 16Bit"
+			config STACK_DEPTH_TYPE_64BIT
+				depends on ARCH_64BIT
+				bool "Stack Depth is 64Bit"
 			config STACK_DEPTH_TYPE_32BIT
 				bool "Stack Depth is 32Bit"
+			config STACK_DEPTH_TYPE_16BIT
+				bool "Stack Depth is 16Bit"
+			config STACK_DEPTH_TYPE_PTR_T
+				bool "Stack Depth is uintptr_t"
 	endchoice
 	config INITIAL_TICK_COUNT
 		int "Initial Tick count"

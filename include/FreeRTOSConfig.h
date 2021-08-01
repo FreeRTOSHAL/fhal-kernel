@@ -280,6 +280,12 @@ void userErrorHandler();
 #ifdef CONFIG_STACK_DEPTH_TYPE_32BIT
 # define configSTACK_DEPTH_TYPE uint32_t
 #endif
+#ifdef CONFIG_STACK_DEPTH_TYPE_64BIT
+# define configSTACK_DEPTH_TYPE uint64_t
+#endif
+#ifdef CONFIG_STACK_DEPTH_TYPE_PTR_T
+# define configSTACK_DEPTH_TYPE uintptr_t
+#endif
 #define configINITIAL_TICK_COUNT CONFIG_INITIAL_TICK_COUNT
 #ifdef CONFIG_INCLUDE_vTaskDelete
 # define INCLUDE_vTaskDelete 1
