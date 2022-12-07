@@ -480,7 +480,6 @@ void userErrorHandler();
 void taskReturnFunction();
 # define configTASK_RETURN_ADDRESS taskReturnFunction
 #endif
-#endif
 #ifdef CONFIG_ENABLE_MPU
 # define configENABLE_MPU 1
 #else
@@ -510,4 +509,30 @@ void taskReturnFunction();
 # define configUSE_DAEMON_TASK_STARTUP_HOOK 1
 #else
 # define configUSE_DAEMON_TASK_STARTUP_HOOK 0
+#endif
+#ifdef CONFIG_USE_C_RUNTIME_TLS_SUPPORT
+# define CONFIG_USE_C_RUNTIME_TLS_SUPPORT 1
+#endif
+#ifdef CONFIG_USE_MINI_LIST_ITEM
+# define configUSE_MINI_LIST_ITEM 1
+#else
+# define configUSE_MINI_LIST_ITEM 0
+#endif
+#ifdef CONFIG_RUN_TIME_COUNTER_TYPE_UINT32_T
+# define configRUN_TIME_COUNTER_TYPE uint32_t
+#endif
+#ifdef CONFIG_RUN_TIME_COUNTER_TYPE_UINT64_T
+# define configRUN_TIME_COUNTER_TYPE uint64_t
+#endif
+#ifdef CONFIG_HEAP_CLEAR_MEMORY_ON_FREE
+# define configHEAP_CLEAR_MEMORY_ON_FREE 1
+#else
+# define configHEAP_CLEAR_MEMORY_ON_FREE 0
+#endif
+#ifdef CONFIG_IDLE_TASK_NAME
+# define configIDLE_TASK_NAME CONFIG_IDLE_TASK_NAME
+#endif
+#ifdef CONFIG_ARCH_ARM_SYSTICK_CLOCK_HZ
+#define configSYSTICK_CLOCK_HZ CONFIG_ARCH_ARM_SYSTICK_CLOCK_HZ
+#endif
 #endif

@@ -213,6 +213,14 @@ menu "Basic Settings"
 				If heap_1.c, heap_2.c or heap_4.c is used, and configAPPLICATION_ALLOCATED_HEAP is set to 1, then the application writer must provide a uint8_t array with the exact name and dimension as shown below. The array will be used as the FreeRTOS heap. How the array is placed at a specific memory location is dependent on the compiler being used - refer to your compiler's documentation.
 
 				uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+		config HEAP_CLEAR_MEMORY_ON_FREE
+			bool "Clear Memmory if vPortFree is used"
+			depends on HEAP_2 || HEAP_4 || HEAP_5
+			default y
+			help
+				The application writer can set it to 1 in their FreeRTOSConfig.h to ensure that a block of memory allocated using
+				pvPortMalloc is cleared (i.e. set to zero) when it is freed using vPortFree. If left undefined, configHEAP_CLEAR_MEMORY_ON_FREE
+				defaults to 0 for backward compatibility. We recommend setting configHEAP_CLEAR_MEMORY_ON_FREE to 1 for better security.
 	endif
 
 
@@ -293,6 +301,33 @@ menu "Basic Settings"
 				User must defined: portCONFIGURE_TIMER_FOR_RUN_TIME_STATS and portGET_RUN_TIME_COUNTER_VALUE
 			
 	endchoice
+	choice 
+		prompt "Runtime time counter Type"
+		depends on GENERATE_RUN_TIME_STATS
+		help
+			Make the type used to hold run-time counter values configurable (#350)
+
+			* Introduce configRUN_TIME_COUNTER_TYPE which enables developers to define the type
+			used to hold run time statistic counters.  Defaults to uint32_t for backward compatibility.
+			#define configRUN_TIME_COUNTER_TYPE to a type (for example, uint64_t) in FreeRTOSConfig.h to override the default.
+
+			Introduce ulTaskGetIdleRunTimePercent() to complement the pre-existing ulTaskGetIdleRunTimeCounter().  Whereas the
+			pre-existing function returns the raw run time counter value, the new function returns the percentage of the entire
+			run time consumed by the idle task.  Note the amount of idle time is only a good measure of the slack time in a system
+			if there are no other tasks executing at the idle priority, tickless
+			idle is not used, and configIDLE_SHOULD_YIELD is set to 0.
+		config RUN_TIME_COUNTER_TYPE_UINT32_T
+			bool "uint32_t"
+		config RUN_TIME_COUNTER_TYPE_UINT64_T
+			bool "uint64_t"
+	endchoice
+	config RECORD_STACK_HIGH_ADDRESS
+		bool "Record Stack High Address"
+		default n
+		help
+			Record Stack High Address per Task
+
+			Waring threre is no API Call to collect this data!
 	config INCLUDE_uxTaskGetStackHighWaterMark
 		bool "Get Stack High Water Mark Support"
 		default n
@@ -350,6 +385,23 @@ menu "Basic Settings"
 		bool "Run FreeRTOS in Secure Mode only"
 		default n
 		depends on ARCH_ARM_CORTEX_M33
+	config USE_MINI_LIST_ITEM
+		bool "Use MiniListItem_t to save memmory"
+		default y
+		help
+			If enabeld memmory is save of FreeROTS intern list structure
+
+			When configUSE_MINI_LIST_ITEM == 0:
+				MiniListItem_t and ListItem_t are both typedefs of struct xLIST_ITEM.
+
+			When configUSE_MINI_LIST_ITEM == 1 (the default in projdefs.h):
+				MiniListItem_t is a typedef of struct xMINI_LIST_ITEM, which contains 3 fewer fields than a struct xLIST_ITEM.
+				This configuration saves approximately sizeof(TickType_t) + 2 * sizeof( void * ) bytes of ram, however it also violates strict aliasing rules which some compilers depend on for optimization.
+			configUSE_MINI_LIST_ITEM defaults to 1 when not defined.
+
+
+
+
 
 endmenu
 menu "Task Setting"
@@ -551,6 +603,40 @@ menu "Task Setting"
 			FreeRTOS is not responsible for resulting newlib operation. User must be familiar with newlib and must provide 
 			system-wide implementations of the necessary stubs. Be warned that (at the time of writing) the current newlib 
 			design implements a system-wide malloc() that must be provided with locks.
+	config USE_C_RUNTIME_TLS_SUPPORT
+		bool "Thread Local Storage (TLS) support"
+		depends on !USE_NEWLIB_REENTRANT
+		depends on INCLUDE_USER_FREERTOS_CONFIG
+		default n
+		help
+			FreeRTOS's Thread Local Storage (TLS) support used variables and
+			functions from newlib, thereby making the TLS support specific to
+			newlib. This commit generalizes the TLS support so that it can be used
+			with other c-runtime libraries also. The default behavior for newlib
+			support is still kept same for backward compatibility.
+
+			The application writer would need to set configUSE_C_RUNTIME_TLS_SUPPORT
+			to 1 in their FreeRTOSConfig.h and define the following macros to
+			support TLS for a c-runtime library:
+
+			1. configTLS_BLOCK_TYPE - Type used to define the TLS block in TCB.
+			2. configINIT_TLS_BLOCK( xTLSBlock ) - Allocate and initialize memory
+			block for the task's TLS Block.
+			3. configSET_TLS_BLOCK( xTLSBlock ) - Switch C-Runtime's TLS Block to
+			point to xTLSBlock.
+			4. configDEINIT_TLS_BLOCK( xTLSBlock ) - Free up the memory allocated
+			for the task's TLS Block.
+
+			The following is an example to support TLS for picolibc:
+
+			#define configUSE_C_RUNTIME_TLS_SUPPORT        1
+			#define configTLS_BLOCK_TYPE                   void*
+			#define configINIT_TLS_BLOCK( xTLSBlock )      _init_tls( xTLSBlock )
+			#define configSET_TLS_BLOCK( xTLSBlock )       _set_tls( xTLSBlock )
+			#define configDEINIT_TLS_BLOCK( xTLSBlock )
+
+			Use INCLUDE_USER_FREERTOS_CONFIG to insert the needed defineds. 
+	
 	config USE_TASK_NOTIFICATIONS
 		bool "Use Task Notifications functions"
 		default n
@@ -685,6 +771,12 @@ menu "Task Setting"
 		default n
 		help
 			Add POSIX errno to TCB
+	config IDLE_TASK_NAME
+		string "Idle Task Name"
+		default "IDLE"
+		help
+			Defined Idle task Name
+
 	comment "Function Support"
 	config INCLUDE_vTaskDelete
 		bool "Add Task Deletion Support"
@@ -907,4 +999,18 @@ config STREAM_BUFFER
 		sized but discrete messages. Message buffers use stream buffers for data transfer.
 		
 		More Infos at https://www.freertos.org/RTOS-stream-message-buffers.html
+	config USE_SB_COMPLETED_CALLBACK
+		bool "Let each stream/message can use its own sbSEND_COMPLETED"
+		depends on STREAM_BUFFER
+		help
+			Let each stream/message can use its own sbSEND_COMPLETED
+
+			In FreeRTOS.h, set the default value of configUSE_SB_COMPLETED_CALLBACK
+			to zero, and add additional space for the function pointer when
+			the buffer created statically.
+
+			In stream_buffer.c, modify the macro of sbSEND_COMPLETED which let
+			the stream buffer to use its own implementation, and then add an
+			pointer to the stream buffer's structure, and modify the
+			implementation of the buffer creating and initializing
 endmenu
